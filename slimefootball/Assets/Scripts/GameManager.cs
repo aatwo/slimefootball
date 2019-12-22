@@ -18,20 +18,25 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     Transform playerPrefab;
 
+    [SerializeField]
+    Transform ballPrefab;
+
     Vector2Int[] playerSpawnLocations = new Vector2Int[4];
     List<PlayerController> playerList = new List<PlayerController>();
+    Transform ball;
 
     private void Start()
     {
         CalculatePlayerSpawnLocations();
         GenerateLevel();
         SpawnPlayers();
+        SpawnBall();
     }
 
     void CalculatePlayerSpawnLocations()
     {
-        playerSpawnLocations[0] = new Vector2Int( 1, 1 );
-        playerSpawnLocations[1] = new Vector2Int( Common.gameWidth - 2, 1 );
+        playerSpawnLocations[0] = new Vector2Int( 2, 1 );
+        playerSpawnLocations[1] = new Vector2Int( Common.gameWidth - 3, 1 );
     }
 
     void GenerateLevel()
@@ -56,8 +61,6 @@ public class GameManager : MonoBehaviour
 
     void SpawnPlayers()
     {
-        // TODO: support multiple players
-
         for( int i = 0; i < 2; i++ )
         {
             Transform player = Instantiate(playerPrefab, GetPlayerSpawnPos(i), Quaternion.identity);
@@ -68,6 +71,12 @@ public class GameManager : MonoBehaviour
             playerController.SetPlayerIndex( i );
             playerList.Add( playerController );
         }
+    }
+
+    void SpawnBall()
+    {
+        Vector3 ballSpawnPos = GetTileCenterPos(Common.gameWidth / 2, Common.gameHeight / 2);
+        ball = Instantiate(ballPrefab, ballSpawnPos, Quaternion.identity);
     }
 
     Vector3 GetTileCenterPos(int x, int y)

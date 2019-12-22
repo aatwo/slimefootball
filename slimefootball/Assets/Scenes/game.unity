@@ -170,6 +170,8 @@ MonoBehaviour:
   wallTile: {fileID: 11400000, guid: 083eefd923976f24199b6a3e0050cec7, type: 2}
   playerPrefab: {fileID: 2716371878666614092, guid: 1c20d6c7ce6d3864aa6914758fada2dd,
     type: 3}
+  ballPrefab: {fileID: 2281306142971931291, guid: ccdc82c5a9e96244592a7e27f571aa85,
+    type: 3}
 --- !u!114 &190987906
 MonoBehaviour:
   m_ObjectHideFlags: 0

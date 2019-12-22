@@ -5,6 +5,8 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public float maxSpeed = 5f;
+    public float jumpForceDurationS = 0.3f;
+    public float jumpForcePerSecond = 1000f;
 
     Rigidbody2D rb;
     int playerIndex = 0;
@@ -18,10 +20,7 @@ public class PlayerController : MonoBehaviour
 
     JumpState jumpState = JumpState.can_jump;
     bool hasReleasedJumpSinceLastJump = true;
-
-    float jumpForceDurationS = 0.3f;
     float jumpStartTime = 0f;
-    float jumpForcePerSecond = 1000f;
 
     public void SetPlayerIndex(int n)
     {
@@ -70,9 +69,6 @@ public class PlayerController : MonoBehaviour
 
     void ProcessVerticalAxisInput( string verticalName )
     {
-        if( playerIndex != 0 )
-            return;
-
         float verticalInput = Input.GetAxisRaw(verticalName );
 
         // Jump rules:
