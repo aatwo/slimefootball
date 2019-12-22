@@ -92,7 +92,8 @@ public class PlayerController : MonoBehaviour
                     hasReleasedJumpSinceLastJump = false;
                     jumpStartTime = Time.time;
                     jumpState = JumpState.jumping;
-                    rb.AddForce( new Vector2( 0f, 150f ) );
+                    rb.velocity = new Vector2( rb.velocity.x, 6f );
+                    //rb.AddForce( new Vector2( 0f, 150f ) );
                 }
                 break;
             }
