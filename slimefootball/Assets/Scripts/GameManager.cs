@@ -30,6 +30,7 @@ public class GameManager : MonoBehaviour
         CalculatePlayerSpawnLocations();
         GenerateLevel();
         SpawnPlayers();
+        EnableAi(1);
         SpawnBall();
     }
 
@@ -71,6 +72,11 @@ public class GameManager : MonoBehaviour
             playerController.SetPlayerIndex( i );
             playerList.Add( playerController );
         }
+    }
+
+    void EnableAi( int playerIndex )
+    {
+        playerList[playerIndex].gameObject.AddComponent<AiPlayerController>();
     }
 
     void SpawnBall()

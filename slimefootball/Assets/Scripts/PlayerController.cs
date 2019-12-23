@@ -11,7 +11,7 @@ public class PlayerController : MonoBehaviour
     Rigidbody2D rb;
     int playerIndex = 0;
 
-    enum JumpState
+    public enum JumpState
     {
         can_jump,
         jumping,
@@ -22,9 +22,29 @@ public class PlayerController : MonoBehaviour
     bool hasReleasedJumpSinceLastJump = true;
     float jumpStartTime = 0f;
 
-    public void SetPlayerIndex(int n)
+    public void SetPlayerIndex( int n )
     {
         playerIndex = n;
+    }
+
+    public void MoveLeft()
+    {
+        ProcessHorizontalAxisInput( -1f );
+    }
+
+    public void MoveRight()
+    {
+        ProcessHorizontalAxisInput( 1f );
+    }
+
+    public void Jump()
+    {
+        ProcessVerticalAxisInput(1f);
+    }
+
+    public JumpState GetJumpState()
+    {
+        return jumpState;
     }
 
     // Start is called before the first frame update
@@ -55,22 +75,21 @@ public class PlayerController : MonoBehaviour
         string horizontalAxisName = "Horizontal" + playerIndex + "_key";
         string verticalAxisName = "Vertical" + playerIndex + "_key";
 
-        ProcessHorizontalAxisInput( horizontalAxisName );
-        ProcessVerticalAxisInput( verticalAxisName );
+        float horizontalInput = Input.GetAxis( horizontalAxisName );
+        ProcessHorizontalAxisInput( horizontalInput );
+
+        float verticalInput = Input.GetAxisRaw( verticalAxisName );
+        ProcessVerticalAxisInput( verticalInput );
     }
 
-    void ProcessHorizontalAxisInput( string horizontalName )
+    void ProcessHorizontalAxisInput( float horizontalInput )
     {
-        float horizontalInput = Input.GetAxis( horizontalName );
         float xVel = horizontalInput * maxSpeed;
-
         rb.velocity = new Vector2( xVel, rb.velocity.y );
     }
 
-    void ProcessVerticalAxisInput( string verticalName )
+    void ProcessVerticalAxisInput( float verticalInput )
     {
-        float verticalInput = Input.GetAxisRaw(verticalName );
-
         // Jump rules:
         //      1. if player is on floor they can press jump
         //      2. while holding jump jump force will be applied
