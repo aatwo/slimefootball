@@ -24,7 +24,7 @@ public class AiPlayerController : MonoBehaviour
         SearchForBall();
         SearchForPlayerController();
 
-        MoveTowardsBall();
+        PerformAi();
     }
 
     void SearchForBall()
@@ -55,7 +55,7 @@ public class AiPlayerController : MonoBehaviour
         playerController = GetComponent<PlayerController>();
     }
 
-    void MoveTowardsBall()
+    void PerformAi()
     {
         if( playerController == null || ball == null )
             return;
@@ -69,13 +69,24 @@ public class AiPlayerController : MonoBehaviour
         float playerX = playerController.transform.position.x;
         float ballX = ball.transform.position.x;
 
-        if( direction == Direction.left )
-        {
-            if( playerX > ballX )
-                playerController.MoveLeft();
+        float playerY = playerController.transform.position.y;
+        float ballY = ball.transform.position.y;
 
-            else if( playerX < ballX )
-                playerController.MoveRight();
+        // Blindly move towards the ball
+        if( playerX > ballX )
+            playerController.MoveLeft();
+        else if( playerX < ballX )
+            playerController.MoveRight();
+
+        // If the ball is within a specific vertical window then jump
+        float jumpXRange = 1f;
+        float jumpYRange = 2f;
+        if( ballX > ( playerX - jumpXRange / 2f) && ballX < ( playerX + jumpXRange / 2f ) )
+        {
+            if( ballY > playerY && ballY < ( playerY + jumpYRange ) )
+            {
+                playerController.Jump();
+            }
         }
     }
 }
