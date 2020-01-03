@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 13312, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: environment_tiles_2
+  m_Name: goal_mid
   m_EditorClassIdentifier: 
-  m_Sprite: {fileID: -8213103708465372677, guid: 2f4f541faed57a041982ff579ffe19dd,
+  m_Sprite: {fileID: -2011216184659823745, guid: 67e16254d32e24b4a89e5587563a239d,
     type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Transform:

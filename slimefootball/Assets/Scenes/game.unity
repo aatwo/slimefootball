@@ -164,13 +164,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee5554e557b9d6048b7bc70b8d881fd5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  floorTilemap: {fileID: 2015722347}
-  floorTile: {fileID: 11400000, guid: b52480895918d15449376ba8e5279eec, type: 2}
+  backgroundTilemap: {fileID: 2015722347}
+  backgroundTile: {fileID: 11400000, guid: 8373ee36be9f7c54caf5746d2dffcddf, type: 2}
   environmentTilemap: {fileID: 588477916}
-  wallTile: {fileID: 11400000, guid: 083eefd923976f24199b6a3e0050cec7, type: 2}
+  environmentTile: {fileID: 11400000, guid: d6156b2f289ee214b8d578b475899d62, type: 2}
   playerPrefab: {fileID: 2716371878666614092, guid: 1c20d6c7ce6d3864aa6914758fada2dd,
     type: 3}
   ballPrefab: {fileID: 2281306142971931291, guid: ccdc82c5a9e96244592a7e27f571aa85,
+    type: 3}
+  goalPrefab: {fileID: 5531770418650946074, guid: 8035aace0ad7b8642a687a5a1a7b4133,
     type: 3}
 --- !u!114 &190987906
 MonoBehaviour:
@@ -243,7 +245,7 @@ GameObject:
   - component: {fileID: 588477918}
   - component: {fileID: 588477917}
   - component: {fileID: 588477914}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Tilemap_Environment
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -322,8 +324,8 @@ TilemapRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 401467821
-  m_SortingLayer: 0
+  m_SortingLayerID: 370241719
+  m_SortingLayer: 2
   m_SortingOrder: 1
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
@@ -526,7 +528,7 @@ GameObject:
   - component: {fileID: 2015722347}
   - component: {fileID: 2015722346}
   m_Layer: 0
-  m_Name: Tilemap_Floor
+  m_Name: Tilemap_Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -580,8 +582,8 @@ TilemapRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 401467821
-  m_SortingLayer: 0
+  m_SortingLayerID: 1620700239
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}

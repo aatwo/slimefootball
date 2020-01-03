@@ -53,6 +53,8 @@ public class AiPlayerController : MonoBehaviour
 
         lastPlayerSearchTime = Time.time;
         playerController = GetComponent<PlayerController>();
+        if( playerController != null )
+            playerController.SetManualInputEnabled( false );
     }
 
     void PerformAi()
@@ -81,9 +83,9 @@ public class AiPlayerController : MonoBehaviour
         // If the ball is within a specific vertical window then jump
         float jumpXRange = 1f;
         float jumpYRange = 2f;
-        if( ballX > ( playerX - jumpXRange / 2f) && ballX < ( playerX + jumpXRange / 2f ) )
+        //if( ballX > ( playerX - jumpXRange / 2f) && ballX < ( playerX + jumpXRange / 2f ) )
         {
-            if( ballY > playerY && ballY < ( playerY + jumpYRange ) )
+            //if( ballY > playerY && ballY < ( playerY + jumpYRange ) )
             {
                 playerController.Jump();
             }

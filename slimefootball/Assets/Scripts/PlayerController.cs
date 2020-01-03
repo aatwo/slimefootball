@@ -21,6 +21,12 @@ public class PlayerController : MonoBehaviour
     JumpState jumpState = JumpState.can_jump;
     bool hasReleasedJumpSinceLastJump = true;
     float jumpStartTime = 0f;
+    bool manualInputEnabled = true;
+
+    public void SetManualInputEnabled(bool enabled)
+    {
+        manualInputEnabled = enabled;
+    }
 
     public void SetPlayerIndex( int n )
     {
@@ -72,6 +78,9 @@ public class PlayerController : MonoBehaviour
 
     void ProcessKeyboardInput()
     {
+        if( !manualInputEnabled )
+            return;
+
         string horizontalAxisName = "Horizontal" + playerIndex + "_key";
         string verticalAxisName = "Vertical" + playerIndex + "_key";
 
@@ -90,6 +99,9 @@ public class PlayerController : MonoBehaviour
 
     void ProcessVerticalAxisInput( float verticalInput )
     {
+
+        if( playerIndex == 1 )
+            Debug.Log( "jumpState = " + jumpState );
         // Jump rules:
         //      1. if player is on floor they can press jump
         //      2. while holding jump jump force will be applied
@@ -106,13 +118,12 @@ public class PlayerController : MonoBehaviour
         {
             case JumpState.can_jump:
             {
-                if( pressingJump && hasReleasedJumpSinceLastJump )
+                if( pressingJump && (hasReleasedJumpSinceLastJump || !manualInputEnabled) )
                 {
                     hasReleasedJumpSinceLastJump = false;
                     jumpStartTime = Time.time;
                     jumpState = JumpState.jumping;
                     rb.velocity = new Vector2( rb.velocity.x, 6f );
-                    //rb.AddForce( new Vector2( 0f, 150f ) );
                 }
                 break;
             }
@@ -156,11 +167,19 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerEnter2D( Collider2D collision )
     {
+        // Ignore any collisions with non-environment objects
+        if( collision.gameObject.layer != LayerMask.NameToLayer( "Environment" ) )
+            return;
+
         jumpState = JumpState.can_jump;
     }
 
     private void OnTriggerStay2D( Collider2D collision )
     {
+        // Ignore any collisions with non-environment objects
+        if( collision.gameObject.layer != LayerMask.NameToLayer( "Environment" ) )
+            return;
+
         if( jumpState == JumpState.falling )
         {
             jumpState = JumpState.can_jump;

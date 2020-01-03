@@ -16,7 +16,7 @@ TagManager:
   - 
   - 
   - 
-  - 
+  - Environment
   - 
   - 
   - 
@@ -26,7 +26,7 @@ TagManager:
   - 
   - 
   - 
-  - 
+  - Crossbar
   - 
   - 
   - 
@@ -42,7 +42,7 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: Floor
+  - name: Background
     uniqueID: 1620700239
     locked: 0
   - name: Environment
@@ -53,4 +53,7 @@ TagManager:
     locked: 0
   - name: Ball
     uniqueID: 2014044689
+    locked: 0
+  - name: Goals
+    uniqueID: 431381659
     locked: 0
