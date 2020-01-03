@@ -8,9 +8,10 @@ public class GameManager : MonoBehaviour
     enum GameState
     {
         Playing,
-        NotPlaying
+        Resetting,
+        Finished
     }
-    GameState gameState = GameState.NotPlaying;
+    GameState gameState = GameState.Playing;
 
     [SerializeField]
     Tilemap backgroundTilemap;
@@ -34,22 +35,101 @@ public class GameManager : MonoBehaviour
     static public int gameWidth = 32;
     static public int gameHeight = 20;
 
+    public int maxScore = 3;
+    int[] playerScores = new int[2];
+
     Vector2Int[] goalSpawnLocations = new Vector2Int[2];
     Vector2Int[] playerSpawnLocations = new Vector2Int[2];
     Vector2Int ballSpawnLocation;
     List<PlayerController> playerControllerList = new List<PlayerController>();
+    List<AiPlayerController> aiPlayerControllerList = new List<AiPlayerController>();
+    List<ManualPlayerController> manualPlayerControllerList = new List<ManualPlayerController>();
     List<Transform> playerList = new List<Transform>();
     Transform ball;
     Transform leftGoal;
     Transform rightGoal;
 
+    float restartDurationS = 2f;
+    float restartStartTime = 0f;
+
+    float finishedDurationS = 5f;
+    float finishedStartTime = 0f;
+
     private void Start()
     {
+        ResetScores();
         CalculateSpawnLocations();
         GenerateLevel();
         SpawnGoals();
         SpawnPlayers();
         SpawnBall();
+    }
+
+    private void Update()
+    {
+        switch(gameState)
+        {
+            case GameState.Resetting:
+            {
+                UpdateForRestartingState();
+                break;
+            }
+
+            case GameState.Finished:
+            {
+                UpdateForFinishedState();
+                break;
+            }
+        }
+    }
+
+    void UpdateForRestartingState()
+    {
+        float timeSpentRestarting = Time.time - restartStartTime;
+        if(timeSpentRestarting >= restartDurationS)
+        {
+            SetGameState( GameState.Playing );
+        }
+    }
+
+    void UpdateForFinishedState()
+    {
+        float timeSpentFinished = Time.time - finishedStartTime;
+        if( timeSpentFinished >= finishedDurationS )
+        {
+            ResetGame();
+            SetGameState( GameState.Playing );
+        }
+    }
+
+    void ResetGame()
+    {
+        ResetScores();
+        ResetPositions();
+    }
+
+    void ResetScores()
+    {
+        for( int i = 0; i < playerScores.Length; i++ )
+        {
+            playerScores[i] = 0;
+        }
+    }
+
+    void ResetPositions()
+    {
+        for( int i = 0; i < playerList.Count; i++ )
+        {
+            playerList[i].position = GetPlayerSpawnPos(i);
+            Rigidbody2D rb = playerList[i].GetComponent<Rigidbody2D>();
+            if( rb != null )
+                rb.velocity = new Vector3( 0f, 0f, 0f );
+        }
+
+        ball.position = GetBallSpawnPos();
+        Rigidbody2D ballRb = ball.GetComponent<Rigidbody2D>();
+        if( ballRb != null )
+            ballRb.velocity = new Vector3( 0f, 0f, 0f );
     }
 
     void CalculateSpawnLocations()
@@ -126,8 +206,10 @@ public class GameManager : MonoBehaviour
 
         // TEMP - attach a manual player controller to player 0 for controller index 0
         EnableManualControl( 0, 0 );
+        //EnableManualControl( 1, 1 );
 
         // TEMP - attach an AI controller to player 1
+        //EnableAi( 0 );
         EnableAi( 1 );
     }
 
@@ -135,17 +217,18 @@ public class GameManager : MonoBehaviour
     {
         ManualPlayerController manualPlayerController = playerList[playerIndex].gameObject.AddComponent<ManualPlayerController>();
         manualPlayerController.SetPlayerControllerIndex( playerControllerIndex );
+        manualPlayerControllerList.Add( manualPlayerController );
     }
 
     void EnableAi( int playerIndex )
     {
-        playerList[playerIndex].gameObject.AddComponent<AiPlayerController>();
+        AiPlayerController aiController = playerList[playerIndex].gameObject.AddComponent<AiPlayerController>();
+        aiPlayerControllerList.Add( aiController );
     }
 
     void SpawnBall()
     {
-        Vector3 ballSpawnPos = GetTileCenterPos(ballSpawnLocation.x, ballSpawnLocation.y);
-        ball = Instantiate(ballPrefab, ballSpawnPos, Quaternion.identity);
+        ball = Instantiate(ballPrefab, GetBallSpawnPos(), Quaternion.identity);
     }
 
     Vector3 GetTileCenterPos(int x, int y)
@@ -173,6 +256,21 @@ public class GameManager : MonoBehaviour
         return new Vector3(pos.x, pos.y, 0f);
     }
 
+    Vector3 GetBallSpawnPos()
+    {
+        const float maxHorizontalPosVariance = 0.2f;
+        const float maxVerticalPosVariance = 1f;
+
+        Vector3 pos = GetTileCenterPos( ballSpawnLocation );
+
+        float randomX = Random.Range(pos.x - maxHorizontalPosVariance, pos.x + maxHorizontalPosVariance);
+        float randomY = Random.Range(pos.y - maxVerticalPosVariance, pos.y + maxVerticalPosVariance);
+
+        pos = new Vector3(randomX, randomY, pos.z);
+
+        return pos;
+    }
+
     bool IsTilePlayerSpawn(int x, int y)
     {
         for( int i = 0; i < playerSpawnLocations.Length; i++ )
@@ -185,28 +283,75 @@ public class GameManager : MonoBehaviour
 
     void HandleGoalEvent(GameObject gameObject)
     {
-        // TODO
-        if( leftGoal.IsChildOf(gameObject.transform) )
-            Debug.Log( "PLAYER 1 GOAL!" );
-        else if( rightGoal.IsChildOf(gameObject.transform) )
-            Debug.Log( "PLAYER 0 GOAL!" );
-
-        ResetPositions();
-    }
-    
-    void ResetPositions()
-    {
-        for(int i = 0; i < playerList.Count; i++)
+        if( gameState == GameState.Playing )
         {
-            playerList[i].position = GetTileCenterPos(playerSpawnLocations[i]);
-            Rigidbody2D rb = playerList[i].GetComponent<Rigidbody2D>();
-            if( rb != null )
-                rb.velocity = new Vector3( 0f, 0f, 0f );
+            int playerIndex = -1;
+            if( leftGoal.IsChildOf( gameObject.transform ) )
+            {
+                Debug.Log( "PLAYER 1 GOAL!" );
+                playerIndex = 1;
+            }
+
+            else if( rightGoal.IsChildOf( gameObject.transform ) )
+            {
+                Debug.Log( "PLAYER 0 GOAL!" );
+                playerIndex = 0;
+            }
+
+            if( playerIndex == -1 )
+                Debug.LogError("Unknown player scored");
+
+            playerScores[playerIndex]++;
+            if( playerScores[playerIndex] >= maxScore )
+            {
+                Debug.Log("Player " + playerIndex + " wins!");
+                SetGameState( GameState.Finished );
+            }
+            else
+                SetGameState( GameState.Resetting );            
+        }
+        
+        PrintScores();
+    }
+
+    void SetGameState(GameState state)
+    {
+        switch(state)
+        {
+            case GameState.Resetting:
+            {
+                restartStartTime = Time.time;
+                SetAllAiPlayersEnabled( false );
+                break;
+            }
+            case GameState.Playing:
+            {
+                ResetPositions();
+                SetAllAiPlayersEnabled( true );
+                break;
+            }
+
+            case GameState.Finished:
+            {
+                finishedStartTime = Time.time;
+                SetAllAiPlayersEnabled( true );
+                break;
+            }
         }
 
-        ball.position = GetTileCenterPos( ballSpawnLocation );
-        Rigidbody2D ballRb = ball.GetComponent<Rigidbody2D>();
-        if( ballRb != null )
-            ballRb.velocity = new Vector3( 0f, 0f, 0f );
+        gameState = state;
+    }
+
+    void SetAllAiPlayersEnabled( bool enabled )
+    {
+        foreach( AiPlayerController controller in aiPlayerControllerList )
+        {
+            controller.enabled = enabled;
+        }
+    }
+
+    void PrintScores()
+    {
+        Debug.Log( "SCORE: " + playerScores[0] + " - " + playerScores[1] );
     }
 }

@@ -18,6 +18,9 @@ public class AiPlayerController : MonoBehaviour
     float lastBallSearchTime = 0f;
     float lastPlayerSearchTime = 0f;
 
+    bool isFirstTimeBallSearch = true;
+    bool isFirstTimePlayerSearch = true;
+
     // Update is called once per frame
     void Update()
     {
@@ -33,13 +36,15 @@ public class AiPlayerController : MonoBehaviour
             return;
 
         float timeSinceLastSearchS = Time.time - lastBallSearchTime;
-        if( timeSinceLastSearchS < searchIntervalS )
+        if( timeSinceLastSearchS < searchIntervalS && !isFirstTimeBallSearch )
             return;
 
         lastBallSearchTime = Time.time;
         GameObject ballObject = GameObject.FindGameObjectWithTag( "Ball" );
         if( ballObject != null )
             ball = ballObject.transform;
+
+        isFirstTimeBallSearch = false;
     }
 
     void SearchForPlayerController()
@@ -48,13 +53,15 @@ public class AiPlayerController : MonoBehaviour
             return;
 
         float timeSinceLastSearchS = Time.time - lastPlayerSearchTime;
-        if( timeSinceLastSearchS < searchIntervalS )
+        if( timeSinceLastSearchS < searchIntervalS && !isFirstTimePlayerSearch )
             return;
 
         lastPlayerSearchTime = Time.time;
         playerController = GetComponent<PlayerController>();
         if( playerController != null )
             playerController.SetManualInputEnabled( false );
+
+        isFirstTimePlayerSearch = false;
     }
 
     void PerformAi()

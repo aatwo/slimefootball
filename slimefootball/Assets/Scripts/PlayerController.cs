@@ -8,7 +8,7 @@ public class PlayerController : MonoBehaviour
     public float jumpForceDurationS = 0.3f;
     public float jumpForcePerSecond = 1000f;
 
-    Rigidbody2D rb;    
+    Rigidbody2D rb;
 
     public enum JumpState
     {
