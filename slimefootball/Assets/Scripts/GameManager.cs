@@ -5,6 +5,13 @@ using UnityEngine.Tilemaps;
 
 public class GameManager : MonoBehaviour
 {
+    enum GameState
+    {
+        Playing,
+        NotPlaying
+    }
+    GameState gameState = GameState.NotPlaying;
+
     [SerializeField]
     Tilemap backgroundTilemap;
     [SerializeField]
@@ -38,6 +45,7 @@ public class GameManager : MonoBehaviour
     {
         CalculateSpawnLocations();
         GenerateLevel();
+        SpawnGoals();
         SpawnPlayers();
         SpawnBall();
     }
@@ -74,7 +82,10 @@ public class GameManager : MonoBehaviour
                     environmentTilemap.SetTile( p, environmentTile );
             }
         }
+    }
 
+    void SpawnGoals()
+    {
         // Goals
         leftGoal = Instantiate(goalPrefab, goalSpawnLocations[0], Quaternion.identity);
         rightGoal = Instantiate(goalPrefab, goalSpawnLocations[1], Quaternion.identity);
@@ -83,6 +94,17 @@ public class GameManager : MonoBehaviour
         // (its position is normally its bottom left, but flipping it in the x axis makes its position its bottom right)
         rightGoal.transform.localScale = new Vector3( rightGoal.transform.localScale.x * -1, 1, 1 );
         rightGoal.transform.position = new Vector3( rightGoal.transform.position.x + 2, rightGoal.transform.position.y, rightGoal.transform.position.z );
+
+        // Listen for goal events
+        GoalController leftGoalController = leftGoal.GetComponent<GoalController>();
+        if( leftGoalController == null )
+            Debug.LogError("Unable to find goal controller on left goal game object");
+        leftGoalController.OnGoalEvent += HandleGoalEvent;
+
+        GoalController rightGoalController = rightGoal.GetComponent<GoalController>();
+        if( rightGoalController == null )
+            Debug.LogError( "Unable to find goal controller on right goal game object" );
+        rightGoalController.OnGoalEvent += HandleGoalEvent;
     }
 
     void SpawnPlayers()
@@ -149,5 +171,14 @@ public class GameManager : MonoBehaviour
                 return true;
         }
         return false;
+    }
+
+    void HandleGoalEvent(GameObject gameObject)
+    {
+        // TODO
+        if( leftGoal.IsChildOf(gameObject.transform) )
+            Debug.Log( "PLAYER 1 GOAL!" );
+        else if( rightGoal.IsChildOf(gameObject.transform) )
+            Debug.Log( "PLAYER 0 GOAL!" );
     }
 }
