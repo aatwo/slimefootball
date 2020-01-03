@@ -62,11 +62,11 @@ public class AiPlayerController : MonoBehaviour
         if( playerController == null || ball == null )
             return;
 
-        if( direction == Direction.right )
+        /*if( direction == Direction.right )
         {
             Debug.LogError( "AI facing Direction.right not currently supported" );
             return;
-        }
+        }*/
 
         float playerX = playerController.transform.position.x;
         float ballX = ball.transform.position.x;
@@ -83,9 +83,9 @@ public class AiPlayerController : MonoBehaviour
         // If the ball is within a specific vertical window then jump
         float jumpXRange = 1f;
         float jumpYRange = 2f;
-        //if( ballX > ( playerX - jumpXRange / 2f) && ballX < ( playerX + jumpXRange / 2f ) )
+        if( ballX > ( playerX - jumpXRange / 2f) && ballX < ( playerX + jumpXRange / 2f ) )
         {
-            //if( ballY > playerY && ballY < ( playerY + jumpYRange ) )
+            if( ballY > playerY && ballY < ( playerY + jumpYRange ) )
             {
                 playerController.Jump();
             }

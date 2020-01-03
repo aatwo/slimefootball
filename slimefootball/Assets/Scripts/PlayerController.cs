@@ -8,8 +8,7 @@ public class PlayerController : MonoBehaviour
     public float jumpForceDurationS = 0.3f;
     public float jumpForcePerSecond = 1000f;
 
-    Rigidbody2D rb;
-    int playerIndex = 0;
+    Rigidbody2D rb;    
 
     public enum JumpState
     {
@@ -21,16 +20,11 @@ public class PlayerController : MonoBehaviour
     JumpState jumpState = JumpState.can_jump;
     bool hasReleasedJumpSinceLastJump = true;
     float jumpStartTime = 0f;
-    bool manualInputEnabled = true;
+    bool manualInputEnabled = false;
 
     public void SetManualInputEnabled(bool enabled)
     {
         manualInputEnabled = enabled;
-    }
-
-    public void SetPlayerIndex( int n )
-    {
-        playerIndex = n;
     }
 
     public void MoveLeft()
@@ -43,9 +37,21 @@ public class PlayerController : MonoBehaviour
         ProcessHorizontalAxisInput( 1f );
     }
 
+    public void MoveHorizontal( float value )
+    {
+        float clampedValue = Mathf.Clamp(value, -1f, 1f);
+        ProcessHorizontalAxisInput( clampedValue );
+    }
+
     public void Jump()
     {
         ProcessVerticalAxisInput(1f);
+    }
+
+    public void MoveVertical(float value)
+    {
+        float clampedValue = Mathf.Clamp(value, -1f, 1f);
+        ProcessVerticalAxisInput( clampedValue );
     }
 
     public JumpState GetJumpState()
@@ -64,31 +70,7 @@ public class PlayerController : MonoBehaviour
 
     // Update is called once per frame
     void Update()
-    {
-        // TODO: allow support for players 3 and 4
-        if( playerIndex == 0 || playerIndex == 1 )
-        {
-            ProcessKeyboardInput();
-
-            // If no keyboard movement then try gamepad
-            //if( inputVector.x == 0f && inputVector.y == 0f)
-                //ProcessGamepadInput();
-        }
-    }
-
-    void ProcessKeyboardInput()
-    {
-        if( !manualInputEnabled )
-            return;
-
-        string horizontalAxisName = "Horizontal" + playerIndex + "_key";
-        string verticalAxisName = "Vertical" + playerIndex + "_key";
-
-        float horizontalInput = Input.GetAxis( horizontalAxisName );
-        ProcessHorizontalAxisInput( horizontalInput );
-
-        float verticalInput = Input.GetAxisRaw( verticalAxisName );
-        ProcessVerticalAxisInput( verticalInput );
+    {        
     }
 
     void ProcessHorizontalAxisInput( float horizontalInput )
@@ -99,9 +81,6 @@ public class PlayerController : MonoBehaviour
 
     void ProcessVerticalAxisInput( float verticalInput )
     {
-
-        if( playerIndex == 1 )
-            Debug.Log( "jumpState = " + jumpState );
         // Jump rules:
         //      1. if player is on floor they can press jump
         //      2. while holding jump jump force will be applied

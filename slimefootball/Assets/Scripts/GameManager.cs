@@ -24,8 +24,11 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     Transform goalPrefab;
 
-    Vector2[] goalSpawnLocations = new Vector2[2];
-    Vector2Int[] playerSpawnLocations = new Vector2Int[2];
+    static public int gameWidth = 32;
+    static public int gameHeight = 20;
+
+    Vector2[] goalSpawnLocations = new Vector2[2]; // In world coordinates
+    Vector2Int[] playerSpawnLocations = new Vector2Int[2]; // In cell coordinates
     List<PlayerController> playerList = new List<PlayerController>();
     Transform ball;
     Transform leftGoal;
@@ -36,7 +39,6 @@ public class GameManager : MonoBehaviour
         CalculateSpawnLocations();
         GenerateLevel();
         SpawnPlayers();
-        EnableAi(1);
         SpawnBall();
     }
 
@@ -44,24 +46,24 @@ public class GameManager : MonoBehaviour
     {
         // Players
         playerSpawnLocations[0] = new Vector2Int( 2, 1 );
-        playerSpawnLocations[1] = new Vector2Int( Common.gameWidth - 3, 1 );
+        playerSpawnLocations[1] = new Vector2Int( gameWidth - 3, 1 );
 
         // Goals
         Vector2Int leftGoalGridPos = new Vector2Int (1, 1);
         goalSpawnLocations[0] = GetTileBottomLeftPos( leftGoalGridPos.x, leftGoalGridPos.y );
 
-        Vector2Int rightGoalGridPos = new Vector2Int (Common.gameWidth - 3, 1);
+        Vector2Int rightGoalGridPos = new Vector2Int (gameWidth - 3, 1);
         goalSpawnLocations[1] = GetTileBottomLeftPos( rightGoalGridPos.x, rightGoalGridPos.y );
     }
 
     void GenerateLevel()
     {
-        for( int x = 0; x < Common.gameWidth; x++ )
+        for( int x = 0; x < gameWidth; x++ )
         {
-            bool isHorizontalEdge = (x == 0 || x == Common.gameWidth - 1);
-            for( int y = 0; y < Common.gameHeight; y++ )
+            bool isHorizontalEdge = (x == 0 || x == gameWidth - 1);
+            for( int y = 0; y < gameHeight; y++ )
             {
-                bool isVerticalEdge = (y == 0 || y == Common.gameHeight - 1);
+                bool isVerticalEdge = (y == 0 || y == gameHeight - 1);
 
                 // Place floor tile
                 Vector3Int p = new Vector3Int( x, y, 0 );
@@ -92,9 +94,20 @@ public class GameManager : MonoBehaviour
             if( playerController == null )
                 Debug.LogError( "No player controller script found on player" );
 
-            playerController.SetPlayerIndex( i );
             playerList.Add( playerController );
         }
+
+        // TEMP - attach a manual player controller to player 0 for controller index 0
+        EnableManualControl( 0, 0 );
+
+        // TEMP - attach an AI controller to player 1
+        EnableAi( 1 );
+    }
+
+    void EnableManualControl( int playerIndex, int playerControllerIndex )
+    {
+        ManualPlayerController manualPlayerController = playerList[playerIndex].gameObject.AddComponent<ManualPlayerController>();
+        manualPlayerController.SetPlayerControllerIndex( playerControllerIndex );
     }
 
     void EnableAi( int playerIndex )
@@ -104,7 +117,7 @@ public class GameManager : MonoBehaviour
 
     void SpawnBall()
     {
-        Vector3 ballSpawnPos = GetTileCenterPos(Common.gameWidth / 2, Common.gameHeight / 2);
+        Vector3 ballSpawnPos = GetTileCenterPos(gameWidth / 2, gameHeight / 2);
         ball = Instantiate(ballPrefab, ballSpawnPos, Quaternion.identity);
     }
 
