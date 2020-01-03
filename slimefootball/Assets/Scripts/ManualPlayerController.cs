@@ -8,7 +8,6 @@ public class ManualPlayerController : MonoBehaviour
 
     Transform ball;
     float searchIntervalS = 1f;
-    float lastBallSearchTime = 0f;
     float lastPlayerSearchTime = 0f;
 
     int playerControllerIndex = -1;
