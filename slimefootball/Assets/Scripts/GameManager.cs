@@ -34,9 +34,11 @@ public class GameManager : MonoBehaviour
     static public int gameWidth = 32;
     static public int gameHeight = 20;
 
-    Vector2[] goalSpawnLocations = new Vector2[2]; // In world coordinates
-    Vector2Int[] playerSpawnLocations = new Vector2Int[2]; // In cell coordinates
-    List<PlayerController> playerList = new List<PlayerController>();
+    Vector2Int[] goalSpawnLocations = new Vector2Int[2];
+    Vector2Int[] playerSpawnLocations = new Vector2Int[2];
+    Vector2Int ballSpawnLocation;
+    List<PlayerController> playerControllerList = new List<PlayerController>();
+    List<Transform> playerList = new List<Transform>();
     Transform ball;
     Transform leftGoal;
     Transform rightGoal;
@@ -53,15 +55,15 @@ public class GameManager : MonoBehaviour
     void CalculateSpawnLocations()
     {
         // Players
-        playerSpawnLocations[0] = new Vector2Int( 2, 1 );
-        playerSpawnLocations[1] = new Vector2Int( gameWidth - 3, 1 );
+        playerSpawnLocations[0] = new Vector2Int( 4, 1 );
+        playerSpawnLocations[1] = new Vector2Int( gameWidth - 5, 1 );
 
         // Goals
-        Vector2Int leftGoalGridPos = new Vector2Int (1, 1);
-        goalSpawnLocations[0] = GetTileBottomLeftPos( leftGoalGridPos.x, leftGoalGridPos.y );
+        goalSpawnLocations[0] = new Vector2Int (1, 1);
+        goalSpawnLocations[1] = new Vector2Int (gameWidth - 3, 1);
 
-        Vector2Int rightGoalGridPos = new Vector2Int (gameWidth - 3, 1);
-        goalSpawnLocations[1] = GetTileBottomLeftPos( rightGoalGridPos.x, rightGoalGridPos.y );
+        // Ball
+        ballSpawnLocation = new Vector2Int( gameWidth / 2, gameHeight / 2 );
     }
 
     void GenerateLevel()
@@ -86,9 +88,11 @@ public class GameManager : MonoBehaviour
 
     void SpawnGoals()
     {
-        // Goals
-        leftGoal = Instantiate(goalPrefab, goalSpawnLocations[0], Quaternion.identity);
-        rightGoal = Instantiate(goalPrefab, goalSpawnLocations[1], Quaternion.identity);
+        Vector3 leftGoalWorldPos = GetTileBottomLeftPos( goalSpawnLocations[0].x, goalSpawnLocations[0].y );
+        Vector3 rightGoalWorldPos = GetTileBottomLeftPos( goalSpawnLocations[1].x, goalSpawnLocations[1].y );
+
+        leftGoal = Instantiate(goalPrefab, leftGoalWorldPos, Quaternion.identity);
+        rightGoal = Instantiate(goalPrefab, rightGoalWorldPos, Quaternion.identity);
 
         // Flip the right goal to it's facing the right way then shift it two along to put it back in the correct position 
         // (its position is normally its bottom left, but flipping it in the x axis makes its position its bottom right)
@@ -116,7 +120,8 @@ public class GameManager : MonoBehaviour
             if( playerController == null )
                 Debug.LogError( "No player controller script found on player" );
 
-            playerList.Add( playerController );
+            playerList.Add( player );
+            playerControllerList.Add( playerController );
         }
 
         // TEMP - attach a manual player controller to player 0 for controller index 0
@@ -139,7 +144,7 @@ public class GameManager : MonoBehaviour
 
     void SpawnBall()
     {
-        Vector3 ballSpawnPos = GetTileCenterPos(gameWidth / 2, gameHeight / 2);
+        Vector3 ballSpawnPos = GetTileCenterPos(ballSpawnLocation.x, ballSpawnLocation.y);
         ball = Instantiate(ballPrefab, ballSpawnPos, Quaternion.identity);
     }
 
@@ -147,6 +152,11 @@ public class GameManager : MonoBehaviour
     {
         Vector3Int cellPos = new Vector3Int(x, y, 0);
         return environmentTilemap.GetCellCenterWorld( cellPos );
+    }
+
+    Vector3 GetTileCenterPos( Vector2Int pos )
+    {
+        return GetTileCenterPos( pos.x, pos.y );
     }
 
     Vector3 GetTileBottomLeftPos( int x, int y )
@@ -180,5 +190,23 @@ public class GameManager : MonoBehaviour
             Debug.Log( "PLAYER 1 GOAL!" );
         else if( rightGoal.IsChildOf(gameObject.transform) )
             Debug.Log( "PLAYER 0 GOAL!" );
+
+        ResetPositions();
+    }
+    
+    void ResetPositions()
+    {
+        for(int i = 0; i < playerList.Count; i++)
+        {
+            playerList[i].position = GetTileCenterPos(playerSpawnLocations[i]);
+            Rigidbody2D rb = playerList[i].GetComponent<Rigidbody2D>();
+            if( rb != null )
+                rb.velocity = new Vector3( 0f, 0f, 0f );
+        }
+
+        ball.position = GetTileCenterPos( ballSpawnLocation );
+        Rigidbody2D ballRb = ball.GetComponent<Rigidbody2D>();
+        if( ballRb != null )
+            ballRb.velocity = new Vector3( 0f, 0f, 0f );
     }
 }
