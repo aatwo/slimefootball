@@ -69,21 +69,33 @@ public class AiPlayerController : MonoBehaviour
         if( playerController == null || ball == null )
             return;
 
-        /*if( direction == Direction.right )
-        {
-            Debug.LogError( "AI facing Direction.right not currently supported" );
-            return;
-        }*/
-
         float playerX = playerController.transform.position.x;
         float ballX = ball.transform.position.x;
 
         float playerY = playerController.transform.position.y;
         float ballY = ball.transform.position.y;
 
+        float distanceToBall = Mathf.Abs(playerX - ballX);
+
         // Blindly move towards the ball
         if( playerX > ballX )
-            playerController.MoveLeft();
+        {
+            if( direction == Direction.left )
+            {
+                if( distanceToBall < 1f )
+                {
+                    playerController.MoveRight();
+                }
+                else
+                {
+                    playerController.MoveLeft();
+                }
+            }
+            else
+            {
+                playerController.MoveLeft();
+            }
+        }
         else if( playerX < ballX )
             playerController.MoveRight();
 
