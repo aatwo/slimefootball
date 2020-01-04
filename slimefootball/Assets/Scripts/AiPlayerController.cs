@@ -97,10 +97,26 @@ public class AiPlayerController : MonoBehaviour
             }
         }
         else if( playerX < ballX )
-            playerController.MoveRight();
+        {
+            if( direction == Direction.right )
+            {
+                if( distanceToBall < 1f )
+                {
+                    playerController.MoveLeft();
+                }
+                else
+                {
+                    playerController.MoveRight();
+                }
+            }
+            else
+            {
+                playerController.MoveRight();
+            }
+        }
 
         // If the ball is within a specific vertical window then jump
-        float jumpXRange = 1f;
+        float jumpXRange = 2f;
         float jumpYRange = 2f;
         if( ballX > ( playerX - jumpXRange / 2f) && ballX < ( playerX + jumpXRange / 2f ) )
         {
