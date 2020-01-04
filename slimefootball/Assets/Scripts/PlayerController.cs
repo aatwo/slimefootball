@@ -228,7 +228,6 @@ public class PlayerController : MonoBehaviour
             return;
 
         canMoveLeft = false;
-        Debug.Log( "canMoveLeft = false" );
     }
 
     void HandleLeftTriggerExit( Collider2D collision )
@@ -238,7 +237,6 @@ public class PlayerController : MonoBehaviour
             return;
 
         canMoveLeft = true;
-        Debug.Log( "canMoveLeft = true" );
     }
 
     void HandleRightTriggerEnter( Collider2D collision )
@@ -258,18 +256,5 @@ public class PlayerController : MonoBehaviour
 
         canMoveRight = true;
     }
-
-    /*
-    private void OnTriggerStay2D( Collider2D collision )
-    {
-        // Ignore any collisions with non-environment objects
-        if( collision.gameObject.layer != LayerMask.NameToLayer( Common.environmentLayerName ) )
-            return;
-
-        if( jumpState == JumpState.falling )
-        {
-            jumpState = JumpState.can_jump;
-        }
-    }
-    */
+    
 }

@@ -7,4 +7,5 @@ public class Common : MonoBehaviour
     static public string ballTag = "Ball";
 
     static public string environmentLayerName = "Environment";
+
 }

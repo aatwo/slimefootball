@@ -194,7 +194,7 @@ public class GameManager : MonoBehaviour
     void SpawnPlayers()
     {
         SpawnPlayer( 0 );
-        //SpawnPlayer( 1 );
+        SpawnPlayer( 1 );
 
         // TEMP - attach a manual player controller to player 0 for controller index 0
         EnableManualControl( 0, 0 );
@@ -202,7 +202,7 @@ public class GameManager : MonoBehaviour
 
         // TEMP - attach an AI controller to player 1
         //EnableAi( 0 );
-        //EnableAi( 1 );
+        EnableAi( 1 );
     }
 
     void SpawnPlayer(int index)
