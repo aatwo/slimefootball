@@ -7,10 +7,16 @@ TextureImporter:
     second: player
   - first:
       213: -517894308114096243
-    second: characters_1
+    second: player1
   - first:
       213: 7755224123621818408
-    second: characters_2
+    second: player2
+  - first:
+      213: -553572896045513063
+    second: player0
+  - first:
+      213: 1999770365032306813
+    second: player3
   externalObjects: {}
   serializedVersion: 10
   mipmaps:
@@ -93,22 +99,85 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: player
+      name: player0
       rect:
         serializedVersion: 2
-        x: 11
-        y: 149
+        x: 12
+        y: 211
         width: 64
         height: 34
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7bde4ca5ff6ed4a4d99fd5132abf0dd6
-      internalID: 3083089168873209362
+      spriteID: 95d98f19ba6b207498610de22fd7cf4d
+      internalID: -553572896045513063
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player1
+      rect:
+        serializedVersion: 2
+        x: 91
+        y: 211
+        width: 64
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4f3b6c85c0e523d46a4f48f933342896
+      internalID: -517894308114096243
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player2
+      rect:
+        serializedVersion: 2
+        x: 12
+        y: 157
+        width: 64
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4e56e0e8c45ae6f49be9235aeed47b80
+      internalID: 7755224123621818408
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player3
+      rect:
+        serializedVersion: 2
+        x: 92
+        y: 157
+        width: 64
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cd30702da8ec4334bb13b840fdf6580a
+      internalID: 1999770365032306813
       vertices: []
       indices: 
       edges: []

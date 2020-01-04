@@ -50,6 +50,11 @@ MonoBehaviour:
   maxSpeed: 8
   jumpForceDurationS: 0.3
   jumpForcePerSecond: 900
+  playerSprites:
+  - {fileID: -553572896045513063, guid: 7cd4347371a1c1d459d105bcadaf67f5, type: 3}
+  - {fileID: -517894308114096243, guid: 7cd4347371a1c1d459d105bcadaf67f5, type: 3}
+  - {fileID: 7755224123621818408, guid: 7cd4347371a1c1d459d105bcadaf67f5, type: 3}
+  - {fileID: 1999770365032306813, guid: 7cd4347371a1c1d459d105bcadaf67f5, type: 3}
 --- !u!212 &2716371878666614091
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -87,7 +92,7 @@ SpriteRenderer:
   m_SortingLayerID: 838256005
   m_SortingLayer: 3
   m_SortingOrder: 0
-  m_Sprite: {fileID: 3083089168873209362, guid: 7cd4347371a1c1d459d105bcadaf67f5,
+  m_Sprite: {fileID: -553572896045513063, guid: 7cd4347371a1c1d459d105bcadaf67f5,
     type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0

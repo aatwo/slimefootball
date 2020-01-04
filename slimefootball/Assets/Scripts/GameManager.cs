@@ -200,6 +200,7 @@ public class GameManager : MonoBehaviour
             if( playerController == null )
                 Debug.LogError( "No player controller script found on player" );
 
+            playerController.SetPlayerSpriteIndex( i );
             playerList.Add( player );
             playerControllerList.Add( playerController );
         }

@@ -10,6 +10,9 @@ public class PlayerController : MonoBehaviour
 
     Rigidbody2D rb;
 
+    [SerializeField]
+    Sprite[] playerSprites;
+
     public enum JumpState
     {
         can_jump,
@@ -25,6 +28,18 @@ public class PlayerController : MonoBehaviour
     public void SetManualInputEnabled(bool enabled)
     {
         manualInputEnabled = enabled;
+    }
+
+    public void SetPlayerSpriteIndex(int index)
+    {
+        if( index < 0 || index > playerSprites.Length )
+            Debug.LogError("invalid player sprite index in player controller");
+
+        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+        if( spriteRenderer == null )
+            Debug.LogError("unable to find sprite renderer in player");
+
+        spriteRenderer.sprite = playerSprites[index];
     }
 
     public void MoveLeft()
@@ -65,6 +80,11 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         if( rb == null )
             Debug.LogError( "no rigid body in player" );
+
+        if( playerSprites == null )
+            Debug.LogError( "no character sprites set" );
+
+
 
     }
 
