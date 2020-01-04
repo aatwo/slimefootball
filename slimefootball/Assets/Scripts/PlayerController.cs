@@ -13,6 +13,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     Sprite[] playerSprites;
 
+    [SerializeField] GameObject LeftTriggerDetector;
+    [SerializeField] GameObject RightTriggerDetector;
+    [SerializeField] GameObject BottomTriggerDetector;
+
     public enum JumpState
     {
         can_jump,
@@ -24,6 +28,8 @@ public class PlayerController : MonoBehaviour
     bool hasReleasedJumpSinceLastJump = true;
     float jumpStartTime = 0f;
     bool manualInputEnabled = false;
+    bool canMoveLeft = true;
+    bool canMoveRight = true;
 
     public void SetManualInputEnabled(bool enabled)
     {
@@ -84,18 +90,48 @@ public class PlayerController : MonoBehaviour
         if( playerSprites == null )
             Debug.LogError( "no character sprites set" );
 
+        if( LeftTriggerDetector == null )
+            Debug.LogError("no left detector set in player controller");
 
+        if( RightTriggerDetector == null )
+            Debug.LogError( "no right detector set in player controller" );
 
-    }
+        if( BottomTriggerDetector == null )
+            Debug.LogError( "no bottom detector set in player controller" );
 
-    // Update is called once per frame
-    void Update()
-    {        
+        // Create trigger detectors and attach them to the specified game objects
+
+        { // Detect bottom collisions
+            TriggerDetector script = BottomTriggerDetector.AddComponent<TriggerDetector>();
+            script.OnTriggerEnterEvent += HandleBottomTriggerEnter;
+            script.OnTriggerStayEvent += HandleBottomTriggerStay;
+        }
+
+        { // Detect left collisions
+            TriggerDetector script = LeftTriggerDetector.AddComponent<TriggerDetector>();
+            script.OnTriggerEnterEvent += HandleLeftTriggerEnter;
+            script.OnTriggerStayEvent += HandleLeftTriggerEnter;
+            script.OnTriggerExitEvent += HandleLeftTriggerExit;
+        }
+
+        { // Detect right collisions
+            TriggerDetector script = RightTriggerDetector.AddComponent<TriggerDetector>();
+            script.OnTriggerEnterEvent += HandleRightTriggerEnter;
+            script.OnTriggerStayEvent += HandleRightTriggerEnter;
+            script.OnTriggerExitEvent += HandleRightTriggerExit;
+        }
     }
 
     void ProcessHorizontalAxisInput( float horizontalInput )
     {
         float xVel = horizontalInput * maxSpeed;
+
+        if( !canMoveLeft && xVel < 0f )
+            xVel = 0f;
+
+        if( !canMoveRight && xVel > 0f )
+            xVel = 0f;
+
         rb.velocity = new Vector2( xVel, rb.velocity.y );
     }
 
@@ -164,19 +200,19 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter2D( Collider2D collision )
+    void HandleBottomTriggerEnter( Collider2D collision )
     {
         // Ignore any collisions with non-environment objects
-        if( collision.gameObject.layer != LayerMask.NameToLayer( "Environment" ) )
+        if( collision.gameObject.layer != LayerMask.NameToLayer( Common.environmentLayerName ) )
             return;
 
         jumpState = JumpState.can_jump;
     }
 
-    private void OnTriggerStay2D( Collider2D collision )
+    void HandleBottomTriggerStay( Collider2D collision )
     {
         // Ignore any collisions with non-environment objects
-        if( collision.gameObject.layer != LayerMask.NameToLayer( "Environment" ) )
+        if( collision.gameObject.layer != LayerMask.NameToLayer( Common.environmentLayerName ) )
             return;
 
         if( jumpState == JumpState.falling )
@@ -184,4 +220,56 @@ public class PlayerController : MonoBehaviour
             jumpState = JumpState.can_jump;
         }
     }
+
+    void HandleLeftTriggerEnter( Collider2D collision )
+    {
+        // Ignore any collisions with non-environment objects
+        if( collision.gameObject.layer != LayerMask.NameToLayer( Common.environmentLayerName ) )
+            return;
+
+        canMoveLeft = false;
+        Debug.Log( "canMoveLeft = false" );
+    }
+
+    void HandleLeftTriggerExit( Collider2D collision )
+    {
+        // Ignore any collisions with non-environment objects
+        if( collision.gameObject.layer != LayerMask.NameToLayer( Common.environmentLayerName ) )
+            return;
+
+        canMoveLeft = true;
+        Debug.Log( "canMoveLeft = true" );
+    }
+
+    void HandleRightTriggerEnter( Collider2D collision )
+    {
+        // Ignore any collisions with non-environment objects
+        if( collision.gameObject.layer != LayerMask.NameToLayer( Common.environmentLayerName ) )
+            return;
+
+        canMoveRight = false;
+    }
+
+    void HandleRightTriggerExit( Collider2D collision )
+    {
+        // Ignore any collisions with non-environment objects
+        if( collision.gameObject.layer != LayerMask.NameToLayer( Common.environmentLayerName ) )
+            return;
+
+        canMoveRight = true;
+    }
+
+    /*
+    private void OnTriggerStay2D( Collider2D collision )
+    {
+        // Ignore any collisions with non-environment objects
+        if( collision.gameObject.layer != LayerMask.NameToLayer( Common.environmentLayerName ) )
+            return;
+
+        if( jumpState == JumpState.falling )
+        {
+            jumpState = JumpState.can_jump;
+        }
+    }
+    */
 }

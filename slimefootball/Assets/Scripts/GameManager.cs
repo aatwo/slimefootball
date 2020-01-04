@@ -193,17 +193,8 @@ public class GameManager : MonoBehaviour
 
     void SpawnPlayers()
     {
-        for( int i = 0; i < 2; i++ )
-        {
-            Transform player = Instantiate(playerPrefab, GetPlayerSpawnPos(i), Quaternion.identity);
-            PlayerController playerController = player.GetComponent<PlayerController>();
-            if( playerController == null )
-                Debug.LogError( "No player controller script found on player" );
-
-            playerController.SetPlayerSpriteIndex( i );
-            playerList.Add( player );
-            playerControllerList.Add( playerController );
-        }
+        SpawnPlayer( 0 );
+        //SpawnPlayer( 1 );
 
         // TEMP - attach a manual player controller to player 0 for controller index 0
         EnableManualControl( 0, 0 );
@@ -211,7 +202,19 @@ public class GameManager : MonoBehaviour
 
         // TEMP - attach an AI controller to player 1
         //EnableAi( 0 );
-        EnableAi( 1 );
+        //EnableAi( 1 );
+    }
+
+    void SpawnPlayer(int index)
+    {
+        Transform player = Instantiate(playerPrefab, GetPlayerSpawnPos(index), Quaternion.identity);
+        PlayerController playerController = player.GetComponent<PlayerController>();
+        if( playerController == null )
+            Debug.LogError( "No player controller script found on player" );
+
+        playerController.SetPlayerSpriteIndex( index );
+        playerList.Add( player );
+        playerControllerList.Add( playerController );
     }
 
     void EnableManualControl( int playerIndex, int playerControllerIndex )
