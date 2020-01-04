@@ -338,7 +338,7 @@ public class GameManager : MonoBehaviour
             case GameState.Finished:
             {
                 finishedStartTime = Time.time;
-                SetAllAiPlayersEnabled( true );
+                SetAllAiPlayersEnabled( false );
                 break;
             }
         }
