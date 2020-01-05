@@ -38,7 +38,7 @@ public class AiPlayerController : MonoBehaviour
             return;
 
         lastBallSearchTime = Time.time;
-        GameObject ballObject = GameObject.FindGameObjectWithTag( "Ball" );
+        GameObject ballObject = GameObject.FindGameObjectWithTag( Common.ballTag );
         if( ballObject != null )
             ball = ballObject.transform;
     }
