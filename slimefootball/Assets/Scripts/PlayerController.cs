@@ -22,16 +22,9 @@ public class PlayerController : MonoBehaviour
     };
 
     JumpState jumpState = JumpState.can_jump;
-    bool hasReleasedJumpSinceLastJump = true;
     float jumpStartTime = 0f;
-    bool manualInputEnabled = false;
     bool canMoveLeft = true;
     bool canMoveRight = true;
-
-    public void SetManualInputEnabled(bool enabled)
-    {
-        manualInputEnabled = enabled;
-    }
 
     public void SetPlayerSpriteIndex(int index)
     {
@@ -152,17 +145,13 @@ public class PlayerController : MonoBehaviour
         //      5. jump force only applied for a limited time
         //      6. after a successful jump the user cannot jump until they release and press it again
 
-        bool pressingJump = (verticalInput > 0.0f);
-        if( !pressingJump )
-            hasReleasedJumpSinceLastJump = true;
-
         switch(jumpState)
         {
             case JumpState.can_jump:
             {
-                if( pressingJump && (hasReleasedJumpSinceLastJump || !manualInputEnabled) )
+                // Check if the player is still pressing jump
+                if( verticalInput > 0.0f )
                 {
-                    hasReleasedJumpSinceLastJump = false;
                     jumpStartTime = Time.time;
                     jumpState = JumpState.jumping;
                     rb.velocity = new Vector2( rb.velocity.x, 6f );
@@ -173,7 +162,7 @@ public class PlayerController : MonoBehaviour
             case JumpState.jumping:
             {
                 // Check if player let go of jump
-                if( !pressingJump )
+                if( verticalInput <= 0f )
                 {
                     jumpState = JumpState.falling;
                 }
@@ -205,6 +194,8 @@ public class PlayerController : MonoBehaviour
                 break;
             }
         }
+
+        Debug.Log( "Jumpstate: " + jumpState );
     }
 
     void HandleBottomTriggerEnter( Collider2D collision )
@@ -214,6 +205,7 @@ public class PlayerController : MonoBehaviour
             return;
 
         jumpState = JumpState.can_jump;
+        Debug.Log( "Jumpstate: " + jumpState );
     }
 
     void HandleBottomTriggerStay( Collider2D collision )
@@ -226,6 +218,7 @@ public class PlayerController : MonoBehaviour
         {
             jumpState = JumpState.can_jump;
         }
+        Debug.Log( "Jumpstate: " + jumpState );
     }
 
     void HandleLeftTriggerEnter( Collider2D collision )

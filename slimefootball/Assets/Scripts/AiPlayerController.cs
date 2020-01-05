@@ -55,8 +55,6 @@ public class AiPlayerController : MonoBehaviour
 
         lastPlayerSearchTime = Time.time;
         playerController = GetComponent<PlayerController>();
-        if( playerController != null )
-            playerController.SetManualInputEnabled( false );
     }
 
     void PerformAi()

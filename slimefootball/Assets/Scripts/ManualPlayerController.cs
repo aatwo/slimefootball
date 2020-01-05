@@ -9,8 +9,9 @@ public class ManualPlayerController : MonoBehaviour
     Transform ball;
     float searchIntervalS = 1f;
     float lastPlayerSearchTime = 0f;
-
     int playerControllerIndex = -1;
+
+    bool hasReleasedJumpSinceLastJump = true;
 
     public void SetPlayerControllerIndex( int n )
     {
@@ -40,8 +41,6 @@ public class ManualPlayerController : MonoBehaviour
 
         lastPlayerSearchTime = Time.time;
         playerController = GetComponent<PlayerController>();
-        if( playerController != null )
-            playerController.SetManualInputEnabled( false );
     }
 
     void ProcessKeyboardInput()
@@ -56,6 +55,30 @@ public class ManualPlayerController : MonoBehaviour
         playerController.MoveHorizontal( horizontalInput );
 
         float verticalInput = Input.GetAxisRaw( verticalAxisName );
-        playerController.MoveVertical( verticalInput );
+        bool pressingJump = (verticalInput > 0.0f);
+
+        if( !pressingJump )
+        {
+            hasReleasedJumpSinceLastJump = true;
+            playerController.MoveVertical( 0f );
+        }
+
+        // We only want to apply jump force while the user presses the jump button for the first jump cycle
+        else if( pressingJump && hasReleasedJumpSinceLastJump )
+        {
+            hasReleasedJumpSinceLastJump = false;
+            playerController.MoveVertical( verticalInput );
+        }
+
+        // Once the jump is started we want to apply jump force only while the jump state is jumping
+        else if( pressingJump && !hasReleasedJumpSinceLastJump && playerController.GetJumpState() == PlayerController.JumpState.jumping)
+        {
+            playerController.MoveVertical( verticalInput );
+        }
+
+        else
+        {
+            playerController.MoveVertical( 0f );
+        }
     }
 }
