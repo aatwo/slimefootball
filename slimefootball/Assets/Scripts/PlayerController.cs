@@ -9,10 +9,7 @@ public class PlayerController : MonoBehaviour
     public float jumpForcePerSecond = 1000f;
 
     Rigidbody2D rb;
-
-    [SerializeField]
-    Sprite[] playerSprites;
-
+    [SerializeField] Sprite[] playerSprites;
     [SerializeField] GameObject LeftTriggerDetector;
     [SerializeField] GameObject RightTriggerDetector;
     [SerializeField] GameObject BottomTriggerDetector;
@@ -78,6 +75,16 @@ public class PlayerController : MonoBehaviour
     public JumpState GetJumpState()
     {
         return jumpState;
+    }
+
+    public bool GetCanMoveLeft()
+    {
+        return canMoveLeft;
+    }
+
+    public bool GetCanMoveRight()
+    {
+        return canMoveRight;
     }
 
     // Start is called before the first frame update
