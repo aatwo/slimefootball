@@ -7,11 +7,12 @@ public class GameManager : MonoBehaviour
 {
     enum GameState
     {
+        Menu,
         Playing,
         Resetting,
         Finished
     }
-    GameState gameState = GameState.Playing;
+    GameState gameState = GameState.Menu;
 
     [SerializeField]
     Tilemap backgroundTilemap;
@@ -167,9 +168,11 @@ public class GameManager : MonoBehaviour
 
     void CalculateSpawnLocations()
     {
+        int playerEdgeOffset = 4;
+
         // Players
-        playerSpawnLocations[0] = new Vector2Int( 4, 1 );
-        playerSpawnLocations[1] = new Vector2Int( gameWidth - 5, 1 );
+        playerSpawnLocations[0] = new Vector2Int( playerEdgeOffset, 1 );
+        playerSpawnLocations[1] = new Vector2Int( gameWidth - playerEdgeOffset - 1, 1 );
 
         // Goals
         goalSpawnLocations[0] = new Vector2Int (1, 1);
@@ -241,14 +244,14 @@ public class GameManager : MonoBehaviour
         AddAiPlayerController( 1 );
     }
 
-    void SpawnPlayer(int playerIndex, int teamIndex)
+    void SpawnPlayer(int playerSpriteIndex, int teamIndex)
     {
         Transform playerTransform = Instantiate(playerPrefab, GetTeamSpawnPos(teamIndex), Quaternion.identity);
         PlayerController playerController = playerTransform.GetComponent<PlayerController>();
         if( playerController == null )
             Debug.LogError( "No player controller script found on player (SpawnPlayer)" );
 
-        playerController.SetPlayerSpriteIndex( playerIndex );
+        playerController.SetPlayerSpriteIndex( playerSpriteIndex );
 
         Player player = new Player();
         player.controller = playerController;
@@ -328,8 +331,9 @@ public class GameManager : MonoBehaviour
 
     Vector3 GetTeamSpawnPos( int teamIndex )
     {
+        float xVariance = 0f;
         Vector3 pos = GetTileCenterPos(playerSpawnLocations[teamIndex].x, playerSpawnLocations[teamIndex].y);
-        return new Vector3(pos.x, pos.y, 0f);
+        return new Vector3(pos.x + Random.Range(-xVariance, xVariance), pos.y, 0f);
     }
 
     Vector3 GetBallSpawnPos()
