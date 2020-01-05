@@ -63,6 +63,7 @@ public class GameManager : MonoBehaviour
         SpawnGoals();
         SpawnPlayers();
         SpawnBall();
+        SetupCamera();
     }
 
     private void Update()
@@ -233,6 +234,30 @@ public class GameManager : MonoBehaviour
     void SpawnBall()
     {
         ball = Instantiate(ballPrefab, GetBallSpawnPos(), Quaternion.identity);
+    }
+
+    void SetupCamera()
+    {
+        float camX = environmentTilemap.transform.position.x + (0.5f * gameWidth * environmentTilemap.cellSize.x);
+        float camY = environmentTilemap.transform.position.y + (0.5f * gameHeight * environmentTilemap.cellSize.y);
+
+        { // Make the game height the same as the camera height
+
+            // The orthographicSize is half the size of the vertical viewing volume. The horizontal size of the viewing volume depends on the aspect ratio.
+            Camera.main.orthographicSize = ( gameHeight + 2 * environmentTilemap.cellSize.y ) / 2;
+        }
+
+        { // Make the game width the same as the camera width
+
+            // 1. take the aspect ratio of the game world
+            //float gameWorldAspectRatio = (float)gameWidth / (float)gameHeight;
+
+            //Camera.main.orthographicSize = ( ( gameHeight * environmentTilemap.cellSize.y ) / ( 2f ) ) * gameWorldAspectRatio;
+
+            // TODO: figure out what scale we need to fit either the full width or height into the camera view port
+        }
+
+        Camera.main.transform.position = new Vector3( camX, camY, Camera.main.transform.position.z );
     }
 
     Vector3 GetTileCenterPos(int x, int y)

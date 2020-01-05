@@ -34,7 +34,8 @@ public class ManualPlayerController : MonoBehaviour
             return;
 
         float timeSinceLastSearchS = Time.time - lastPlayerSearchTime;
-        if( timeSinceLastSearchS < searchIntervalS )
+        bool isFirstTimeSearch = (lastPlayerSearchTime == 0f);
+        if( timeSinceLastSearchS < searchIntervalS && !isFirstTimeSearch )
             return;
 
         lastPlayerSearchTime = Time.time;
