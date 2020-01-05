@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public float maxSpeed = 5f;
-    public float jumpForceDurationS = 0.3f;
-    public float jumpForcePerSecond = 1000f;
+    [SerializeField] float maxSpeed = 5f;
+    [SerializeField] float jumpForceDurationS = 0.3f;
+    [SerializeField] float jumpForcePerSecond = 1000f;
 
     Rigidbody2D rb;
     [SerializeField] Sprite[] playerSprites;
