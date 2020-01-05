@@ -7,12 +7,11 @@ public class GameManager : MonoBehaviour
 {
     enum GameState
     {
-        Menu,
         Playing,
         Resetting,
         Finished
     }
-    GameState gameState = GameState.Menu;
+    GameState gameState = GameState.Playing;
 
     [SerializeField]
     Tilemap backgroundTilemap;
