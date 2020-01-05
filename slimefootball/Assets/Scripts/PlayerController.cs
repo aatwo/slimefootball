@@ -194,8 +194,6 @@ public class PlayerController : MonoBehaviour
                 break;
             }
         }
-
-        Debug.Log( "Jumpstate: " + jumpState );
     }
 
     void HandleBottomTriggerEnter( Collider2D collision )
@@ -205,7 +203,6 @@ public class PlayerController : MonoBehaviour
             return;
 
         jumpState = JumpState.can_jump;
-        Debug.Log( "Jumpstate: " + jumpState );
     }
 
     void HandleBottomTriggerStay( Collider2D collision )
@@ -218,7 +215,6 @@ public class PlayerController : MonoBehaviour
         {
             jumpState = JumpState.can_jump;
         }
-        Debug.Log( "Jumpstate: " + jumpState );
     }
 
     void HandleLeftTriggerEnter( Collider2D collision )
