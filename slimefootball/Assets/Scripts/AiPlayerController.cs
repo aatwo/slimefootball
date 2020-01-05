@@ -2,59 +2,39 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AiPlayerController : MonoBehaviour
+public class AiPlayerController : MonoBehaviour, ICustomPlayerController
 {
-    public enum Direction
-    {
-        left,
-        right
-    };
-
-    public Direction direction = Direction.left;
-    public PlayerController playerController;
-
+    Common.Direction direction = Common.Direction.left;
+    PlayerController playerController;
     Transform ball;
-    float searchIntervalS = 1f;
-    float lastBallSearchTime = 0f;
-    float lastPlayerSearchTime = 0f;
+
+    public void SetPlayerController( PlayerController playerController )
+    {
+        this.playerController = playerController;
+    }
+
+    public void SetTeamIndex( int index )
+    {
+        if(index == 0)
+            direction = Common.Direction.right;
+        else
+            direction = Common.Direction.left;
+    }
+
+    public void StartRound( Transform ball, Transform[] goals, int[] scores, int winningScore )
+    {
+        this.ball = ball;
+    }
+
+    public void EndRound()
+    {
+        this.ball = null;
+    }
 
     // Update is called once per frame
     void Update()
     {
-        SearchForBall();
-        SearchForPlayerController();
-
         PerformAi();
-    }
-
-    void SearchForBall()
-    {
-        if( ball != null )
-            return;
-
-        float timeSinceLastSearchS = Time.time - lastBallSearchTime;
-        bool isFirstTimeSearch = (lastBallSearchTime == 0f);
-        if( timeSinceLastSearchS < searchIntervalS && !isFirstTimeSearch )
-            return;
-
-        lastBallSearchTime = Time.time;
-        GameObject ballObject = GameObject.FindGameObjectWithTag( Common.ballTag );
-        if( ballObject != null )
-            ball = ballObject.transform;
-    }
-
-    void SearchForPlayerController()
-    {
-        if( playerController != null )
-            return;
-
-        float timeSinceLastSearchS = Time.time - lastPlayerSearchTime;
-        bool isFirstTimeSearch = (lastPlayerSearchTime == 0f);
-        if( timeSinceLastSearchS < searchIntervalS && !isFirstTimeSearch )
-            return;
-
-        lastPlayerSearchTime = Time.time;
-        playerController = GetComponent<PlayerController>();
     }
 
     void PerformAi()
@@ -73,7 +53,7 @@ public class AiPlayerController : MonoBehaviour
         // Blindly move towards the ball
         if( playerX > ballX )
         {
-            if( direction == Direction.left )
+            if( direction == Common.Direction.left )
             {
                 if( distanceToBall < 1f )
                 {
@@ -91,7 +71,7 @@ public class AiPlayerController : MonoBehaviour
         }
         else if( playerX < ballX )
         {
-            if( direction == Direction.right )
+            if( direction == Common.Direction.right )
             {
                 if( distanceToBall < 1f )
                 {

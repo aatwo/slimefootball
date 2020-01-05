@@ -2,45 +2,45 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ManualPlayerController : MonoBehaviour
+public class KeyboardPlayerController : MonoBehaviour, ICustomPlayerController
 {
-    public PlayerController playerController;
-
+    PlayerController playerController;
     Transform ball;
-    float searchIntervalS = 1f;
-    float lastPlayerSearchTime = 0f;
-    int playerControllerIndex = -1;
-
+    int playerInputIndex = -1;
     bool hasReleasedJumpSinceLastJump = true;
 
-    public void SetPlayerControllerIndex( int n )
+    public void SetPlayerInputIndex( int n )
     {
-        playerControllerIndex = n;
+        playerInputIndex = n;
     }
 
-    // Update is called once per frame
+    public void SetTeamIndex( int index )
+    {
+
+
+    }
+
+    public void SetPlayerController( PlayerController playerController )
+    {
+        this.playerController = playerController;
+    }
+
+    public void StartRound( Transform ball, Transform[] goals, int[] scores, int winningScore )
+    {
+
+    }
+
+    public void EndRound()
+    {
+
+    }
+
     void Update()
     {
-        SearchForPlayerController();
-
-        if( playerControllerIndex != -1 )
+        if( playerInputIndex != -1 )
         {
             ProcessKeyboardInput();
         }
-    }
-
-    void SearchForPlayerController()
-    {
-        if( playerController != null )
-            return;
-
-        float timeSinceLastSearchS = Time.time - lastPlayerSearchTime;
-        bool isFirstTimeSearch = (lastPlayerSearchTime == 0f);
-        if( timeSinceLastSearchS < searchIntervalS && !isFirstTimeSearch )
-            return;
-
-        lastPlayerSearchTime = Time.time;
-        playerController = GetComponent<PlayerController>();
     }
 
     void ProcessKeyboardInput()
@@ -48,8 +48,8 @@ public class ManualPlayerController : MonoBehaviour
         if( playerController == null )
             return;
 
-        string horizontalAxisName = "Horizontal" + playerControllerIndex + "_key";
-        string verticalAxisName = "Vertical" + playerControllerIndex + "_key";
+        string horizontalAxisName = "Horizontal" + playerInputIndex + "_key";
+        string verticalAxisName = "Vertical" + playerInputIndex + "_key";
 
         float horizontalInput = Input.GetAxis( horizontalAxisName );
         playerController.MoveHorizontal( horizontalInput );

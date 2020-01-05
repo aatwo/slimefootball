@@ -4,8 +4,20 @@ using UnityEngine;
 
 public class Common : MonoBehaviour
 {
-    static public string ballTag = "Ball";
+    public enum Direction
+    {
+        left,
+        right
+    };
 
+    enum GameState
+    {
+        Playing,
+        Resetting,
+        Finished
+    };
+
+    static public string ballTag = "Ball";
     static public string environmentLayerName = "Environment";
 
 }

@@ -41,13 +41,18 @@ public class GameManager : MonoBehaviour
     Vector2Int[] goalSpawnLocations = new Vector2Int[2];
     Vector2Int[] playerSpawnLocations = new Vector2Int[2];
     Vector2Int ballSpawnLocation;
-    List<PlayerController> playerControllerList = new List<PlayerController>();
-    List<AiPlayerController> aiPlayerControllerList = new List<AiPlayerController>();
-    List<ManualPlayerController> manualPlayerControllerList = new List<ManualPlayerController>();
-    List<Transform> playerList = new List<Transform>();
+
+    struct Player
+    {
+        public PlayerController controller;
+        public Transform transform;
+        public int teamIndex;
+    }
+    List<Player> players = new List<Player>();
+    List<ICustomPlayerController> customPlayerControllerList = new List<ICustomPlayerController>();
+
+    Transform[] goals = new Transform[2];
     Transform ball;
-    Transform leftGoal;
-    Transform rightGoal;
 
     float restartDurationS = 2f;
     float restartStartTime = 0f;
@@ -64,6 +69,8 @@ public class GameManager : MonoBehaviour
         SpawnPlayers();
         SpawnBall();
         SetupCamera();
+
+        StartNewRound();
     }
 
     private void Update()
@@ -89,7 +96,7 @@ public class GameManager : MonoBehaviour
         float timeSpentRestarting = Time.time - restartStartTime;
         if(timeSpentRestarting >= restartDurationS)
         {
-            SetGameState( GameState.Playing );
+            StartNewRound();
         }
     }
 
@@ -98,15 +105,39 @@ public class GameManager : MonoBehaviour
         float timeSpentFinished = Time.time - finishedStartTime;
         if( timeSpentFinished >= finishedDurationS )
         {
-            ResetGame();
-            SetGameState( GameState.Playing );
+            StartNewGame();
         }
     }
 
-    void ResetGame()
+    void StartNewGame()
     {
         ResetScores();
         ResetPositions();
+        SetGameState( GameState.Playing );
+        foreach( ICustomPlayerController controller in customPlayerControllerList )
+            controller.StartRound( ball, goals, playerScores, maxScore );
+    }
+
+    void StartNewRound()
+    {
+        ResetPositions();
+        SetGameState( GameState.Playing );
+        foreach( ICustomPlayerController controller in customPlayerControllerList )
+            controller.StartRound( ball, goals, playerScores, maxScore );
+    }
+
+    void EndRound()
+    {
+        SetGameState( GameState.Resetting );
+        foreach( ICustomPlayerController controller in customPlayerControllerList )
+            controller.EndRound();
+    }
+
+    void EndGame()
+    {
+        SetGameState( GameState.Finished );
+        foreach( ICustomPlayerController controller in customPlayerControllerList )
+            controller.EndRound();
     }
 
     void ResetScores()
@@ -119,10 +150,11 @@ public class GameManager : MonoBehaviour
 
     void ResetPositions()
     {
-        for( int i = 0; i < playerList.Count; i++ )
+        for( int i = 0; i < players.Count; i++ )
         {
-            playerList[i].position = GetPlayerSpawnPos(i);
-            Rigidbody2D rb = playerList[i].GetComponent<Rigidbody2D>();
+            int teamIndex = players[i].teamIndex;
+            players[i].transform.position = GetTeamSpawnPos(teamIndex);
+            Rigidbody2D rb = players[i].transform.GetComponent<Rigidbody2D>();
             if( rb != null )
                 rb.velocity = new Vector3( 0f, 0f, 0f );
         }
@@ -172,8 +204,8 @@ public class GameManager : MonoBehaviour
         Vector3 leftGoalWorldPos = GetTileBottomLeftPos( goalSpawnLocations[0].x, goalSpawnLocations[0].y );
         Vector3 rightGoalWorldPos = GetTileBottomLeftPos( goalSpawnLocations[1].x, goalSpawnLocations[1].y );
 
-        leftGoal = Instantiate(goalPrefab, leftGoalWorldPos, Quaternion.identity);
-        rightGoal = Instantiate(goalPrefab, rightGoalWorldPos, Quaternion.identity);
+        Transform leftGoal = Instantiate(goalPrefab, leftGoalWorldPos, Quaternion.identity);
+        Transform rightGoal = Instantiate(goalPrefab, rightGoalWorldPos, Quaternion.identity);
 
         // Flip the right goal to it's facing the right way then shift it two along to put it back in the correct position 
         // (its position is normally its bottom left, but flipping it in the x axis makes its position its bottom right)
@@ -190,45 +222,60 @@ public class GameManager : MonoBehaviour
         if( rightGoalController == null )
             Debug.LogError( "Unable to find goal controller on right goal game object" );
         rightGoalController.OnGoalEvent += HandleGoalEvent;
+
+        goals[0] = leftGoal;
+        goals[1] = rightGoal;
     }
 
     void SpawnPlayers()
     {
-        SpawnPlayer( 0 );
-        //SpawnPlayer( 1 );
+        SpawnPlayer( 0, 0 );
+        SpawnPlayer( 1, 1 );
 
         // TEMP - attach a manual player controller to player 0 for controller index 0
-        EnableManualControl( 0, 0 );
-        //EnableManualControl( 1, 1 );
+        AddKeyboardPlayerController( 0, 0 );
+        //AddKeyboardPlayerController( 1, 1 );
 
         // TEMP - attach an AI controller to player 1
-        //EnableAi( 0 );
-        //EnableAi( 1 );
+        //AddAiPlayerController( 0 );
+        AddAiPlayerController( 1 );
     }
 
-    void SpawnPlayer(int index)
+    void SpawnPlayer(int playerIndex, int teamIndex)
     {
-        Transform player = Instantiate(playerPrefab, GetPlayerSpawnPos(index), Quaternion.identity);
-        PlayerController playerController = player.GetComponent<PlayerController>();
+        Transform playerTransform = Instantiate(playerPrefab, GetTeamSpawnPos(teamIndex), Quaternion.identity);
+        PlayerController playerController = playerTransform.GetComponent<PlayerController>();
         if( playerController == null )
-            Debug.LogError( "No player controller script found on player" );
+            Debug.LogError( "No player controller script found on player (SpawnPlayer)" );
 
-        playerController.SetPlayerSpriteIndex( index );
-        playerList.Add( player );
-        playerControllerList.Add( playerController );
+        playerController.SetPlayerSpriteIndex( playerIndex );
+
+        Player player = new Player();
+        player.controller = playerController;
+        player.transform = playerTransform;
+        player.teamIndex = teamIndex;
+        players.Add( player );
     }
 
-    void EnableManualControl( int playerIndex, int playerControllerIndex )
+    void AddKeyboardPlayerController( int playerIndex, int playerControllerIndex )
     {
-        ManualPlayerController manualPlayerController = playerList[playerIndex].gameObject.AddComponent<ManualPlayerController>();
-        manualPlayerController.SetPlayerControllerIndex( playerControllerIndex );
-        manualPlayerControllerList.Add( manualPlayerController );
+        Player player = players[playerIndex];
+        KeyboardPlayerController keyboardController = player.transform.gameObject.AddComponent<KeyboardPlayerController>();
+
+        keyboardController.SetPlayerInputIndex( playerControllerIndex );
+        keyboardController.SetTeamIndex( player.teamIndex );
+        keyboardController.SetPlayerController( player.controller );
+        customPlayerControllerList.Add( keyboardController );
     }
 
-    void EnableAi( int playerIndex )
+    void AddAiPlayerController( int playerIndex )
     {
-        AiPlayerController aiController = playerList[playerIndex].gameObject.AddComponent<AiPlayerController>();
-        aiPlayerControllerList.Add( aiController );
+        Player player = players[playerIndex];
+        AiPlayerController aiController = player.transform.gameObject.AddComponent<AiPlayerController>();
+
+        aiController.SetPlayerController( player.controller );
+        aiController.SetTeamIndex( player.teamIndex );
+        customPlayerControllerList.Add( aiController );
     }
 
     void SpawnBall()
@@ -279,9 +326,9 @@ public class GameManager : MonoBehaviour
 
     }
 
-    Vector3 GetPlayerSpawnPos( int index )
+    Vector3 GetTeamSpawnPos( int teamIndex )
     {
-        Vector3 pos = GetTileCenterPos(playerSpawnLocations[index].x, playerSpawnLocations[index].y);
+        Vector3 pos = GetTileCenterPos(playerSpawnLocations[teamIndex].x, playerSpawnLocations[teamIndex].y);
         return new Vector3(pos.x, pos.y, 0f);
     }
 
@@ -315,13 +362,13 @@ public class GameManager : MonoBehaviour
         if( gameState == GameState.Playing )
         {
             int playerIndex = -1;
-            if( leftGoal.IsChildOf( gameObject.transform ) )
+            if( goals[0].IsChildOf( gameObject.transform ) )
             {
                 Debug.Log( "PLAYER 1 GOAL!" );
                 playerIndex = 1;
             }
 
-            else if( rightGoal.IsChildOf( gameObject.transform ) )
+            else if( goals[1].IsChildOf( gameObject.transform ) )
             {
                 Debug.Log( "PLAYER 0 GOAL!" );
                 playerIndex = 0;
@@ -333,11 +380,13 @@ public class GameManager : MonoBehaviour
             playerScores[playerIndex]++;
             if( playerScores[playerIndex] >= maxScore )
             {
-                Debug.Log("Player " + playerIndex + " wins!");
-                SetGameState( GameState.Finished );
+                EndGame();
+                Debug.Log( "Player " + playerIndex + " wins!" );
             }
             else
-                SetGameState( GameState.Resetting );            
+            {
+                EndRound();
+            }
         }
         
         PrintScores();
@@ -345,38 +394,32 @@ public class GameManager : MonoBehaviour
 
     void SetGameState(GameState state)
     {
+        if( state == gameState )
+        {
+            Debug.LogWarning("SetGameState - the state is already set to " + state);
+            return;
+        }
+
         switch(state)
         {
             case GameState.Resetting:
             {
                 restartStartTime = Time.time;
-                SetAllAiPlayersEnabled( false );
                 break;
             }
             case GameState.Playing:
             {
-                ResetPositions();
-                SetAllAiPlayersEnabled( true );
                 break;
             }
 
             case GameState.Finished:
             {
                 finishedStartTime = Time.time;
-                SetAllAiPlayersEnabled( false );
                 break;
             }
         }
 
         gameState = state;
-    }
-
-    void SetAllAiPlayersEnabled( bool enabled )
-    {
-        foreach( AiPlayerController controller in aiPlayerControllerList )
-        {
-            controller.enabled = enabled;
-        }
     }
 
     void PrintScores()
