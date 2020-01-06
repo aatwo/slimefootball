@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -13,24 +14,20 @@ public class GameManager : MonoBehaviour
     }
     GameState gameState = GameState.Playing;
 
-    [SerializeField]
-    Tilemap backgroundTilemap;
-    [SerializeField]
-    Tile backgroundTile;
+    [SerializeField] Tilemap backgroundTilemap;
+    [SerializeField] Tile backgroundTile;
 
-    [SerializeField]
-    Tilemap environmentTilemap;
-    [SerializeField]
-    Tile environmentTile;
+    [SerializeField] Tilemap environmentTilemap;
+    [SerializeField] Tile environmentTile;
 
-    [SerializeField]
-    Transform playerPrefab;
+    [SerializeField] Transform playerPrefab;
 
-    [SerializeField]
-    Transform ballPrefab;
+    [SerializeField] Transform ballPrefab;
 
-    [SerializeField]
-    Transform goalPrefab;
+    [SerializeField] Transform goalPrefab;
+
+    [SerializeField] Text scoreText;
+    [SerializeField] Text winnerText;
 
     static public int gameWidth = 32;
     static public int gameHeight = 20;
@@ -116,6 +113,8 @@ public class GameManager : MonoBehaviour
         SetGameState( GameState.Playing );
         foreach( ICustomPlayerController controller in customPlayerControllerList )
             controller.StartRound( ball, goals, playerScores, maxScore );
+
+        winnerText.gameObject.SetActive( false );
     }
 
     void StartNewRound()
@@ -124,6 +123,8 @@ public class GameManager : MonoBehaviour
         SetGameState( GameState.Playing );
         foreach( ICustomPlayerController controller in customPlayerControllerList )
             controller.StartRound( ball, goals, playerScores, maxScore );
+
+        winnerText.gameObject.SetActive( false );
     }
 
     void EndRound()
@@ -142,10 +143,19 @@ public class GameManager : MonoBehaviour
 
     void ResetScores()
     {
-        for( int i = 0; i < playerScores.Length; i++ )
-        {
-            playerScores[i] = 0;
-        }
+        int[] scores = new int[2];
+        scores[0] = 0;
+        scores[1] = 0;
+        SetScores( scores );
+    }
+
+    void SetScores( int[] scores )
+    {
+        if( playerScores.Length != 2 )
+            Debug.LogError( "setScores array was an unexpected size" );
+
+        playerScores = scores;
+        scoreText.text = playerScores[0] + " - " + playerScores[1];
     }
 
     void ResetPositions()
@@ -364,35 +374,51 @@ public class GameManager : MonoBehaviour
     {
         if( gameState == GameState.Playing )
         {
-            int playerIndex = -1;
+            int teamIndex = -1;
             if( goals[0].IsChildOf( gameObject.transform ) )
             {
                 Debug.Log( "PLAYER 1 GOAL!" );
-                playerIndex = 1;
+                teamIndex = 1;
             }
 
             else if( goals[1].IsChildOf( gameObject.transform ) )
             {
                 Debug.Log( "PLAYER 0 GOAL!" );
-                playerIndex = 0;
+                teamIndex = 0;
             }
 
-            if( playerIndex == -1 )
+            if( teamIndex == -1 )
                 Debug.LogError("Unknown player scored");
 
-            playerScores[playerIndex]++;
-            if( playerScores[playerIndex] >= maxScore )
+            int [] newScores = playerScores;
+            newScores[teamIndex]++;
+            SetScores( newScores );
+
+            if( playerScores[teamIndex] >= maxScore )
             {
-                EndGame();
-                Debug.Log( "Player " + playerIndex + " wins!" );
+                HandleTeamWin(teamIndex);
             }
             else
             {
-                EndRound();
+                HandleTeamScore( teamIndex );
             }
         }
         
         PrintScores();
+    }
+
+    void HandleTeamWin(int teamIndex)
+    {
+        winnerText.text = "TEAM " + ( teamIndex + 1 ) + " WINS";
+        winnerText.gameObject.SetActive( true );
+        EndGame();
+    }
+
+    void HandleTeamScore( int teamIndex )
+    {
+        winnerText.text = "TEAM " + ( teamIndex + 1 ) + " SCORES";
+        winnerText.gameObject.SetActive( true );
+        EndRound();
     }
 
     void SetGameState(GameState state)
