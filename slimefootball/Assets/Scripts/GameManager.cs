@@ -377,34 +377,19 @@ public class GameManager : MonoBehaviour
             int teamIndex = -1;
             if( goals[0].IsChildOf( gameObject.transform ) )
             {
-                Debug.Log( "PLAYER 1 GOAL!" );
                 teamIndex = 1;
             }
 
             else if( goals[1].IsChildOf( gameObject.transform ) )
             {
-                Debug.Log( "PLAYER 0 GOAL!" );
                 teamIndex = 0;
             }
 
             if( teamIndex == -1 )
                 Debug.LogError("Unknown player scored");
 
-            int [] newScores = playerScores;
-            newScores[teamIndex]++;
-            SetScores( newScores );
-
-            if( playerScores[teamIndex] >= maxScore )
-            {
-                HandleTeamWin(teamIndex);
-            }
-            else
-            {
-                HandleTeamScore( teamIndex );
-            }
+            HandleTeamScore( teamIndex );
         }
-        
-        PrintScores();
     }
 
     void HandleTeamWin(int teamIndex)
@@ -416,9 +401,19 @@ public class GameManager : MonoBehaviour
 
     void HandleTeamScore( int teamIndex )
     {
-        winnerText.text = "TEAM " + ( teamIndex + 1 ) + " SCORES";
+        int [] newScores = playerScores;
+        newScores[teamIndex]++;
+        SetScores( newScores );
+        if( playerScores[teamIndex] >= maxScore )
+        {
+            HandleTeamWin( teamIndex );
+        }
+        else
+        {
+            winnerText.text = "GOAL";
+            EndRound();
+        }
         winnerText.gameObject.SetActive( true );
-        EndRound();
     }
 
     void SetGameState(GameState state)
