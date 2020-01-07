@@ -4,6 +4,18 @@ using UnityEngine;
 
 public class Common : MonoBehaviour
 {
+    public enum GameMode
+    {
+        AiOnly1v1,
+        SinglePlayer1v1,
+        TwoPlayer1v1,
+        AiOnly2v2,
+        SinglePlayer2v2,
+        TwoPlayer2v2,
+        TwoPlayerCoop2v2,
+        TwoPlayerCoop2v10
+    };
+
     public enum Direction
     {
         left,

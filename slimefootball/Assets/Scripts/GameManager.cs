@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -57,6 +58,11 @@ public class GameManager : MonoBehaviour
     float finishedDurationS = 5f;
     float finishedStartTime = 0f;
 
+    public void QuitToMenu()
+    {
+        SceneManager.LoadScene( "menu", LoadSceneMode.Single );
+    }
+
     private void Start()
     {
         ResetScores();
@@ -86,6 +92,8 @@ public class GameManager : MonoBehaviour
                 break;
             }
         }
+
+        HandleKeyboardInput();
     }
 
     void UpdateForRestartingState()
@@ -241,16 +249,106 @@ public class GameManager : MonoBehaviour
 
     void SpawnPlayers()
     {
-        SpawnPlayer( 0, 0 );
-        SpawnPlayer( 1, 1 );
+        if(MenuData.GameMode == Common.GameMode.AiOnly1v1)
+        {
+            SpawnPlayer( 0, 0 );
+            SpawnPlayer( 1, 1 );
+            AddAiPlayerController( 0 );
+            AddAiPlayerController( 1 );
+        }
 
-        // TEMP - attach a manual player controller to player 0 for controller index 0
-        AddKeyboardPlayerController( 0, 0 );
-        //AddKeyboardPlayerController( 1, 1 );
+        else if( MenuData.GameMode == Common.GameMode.SinglePlayer1v1 )
+        {
+            SpawnPlayer( 0, 0 );
+            SpawnPlayer( 1, 1 );
+            AddKeyboardPlayerController( 0, 0 );
+            AddAiPlayerController( 1 );
+        }
 
-        // TEMP - attach an AI controller to player 1
-        //AddAiPlayerController( 0 );
-        AddAiPlayerController( 1 );
+        else if( MenuData.GameMode == Common.GameMode.TwoPlayer1v1 )
+        {
+            SpawnPlayer( 0, 0 );
+            SpawnPlayer( 1, 1 );
+            AddKeyboardPlayerController( 0, 0 );
+            AddKeyboardPlayerController( 1, 1 );
+        }
+
+        else if( MenuData.GameMode == Common.GameMode.AiOnly2v2 )
+        {
+            SpawnPlayer( 0, 0 );
+            SpawnPlayer( 1, 0 );
+            SpawnPlayer( 2, 1 );
+            SpawnPlayer( 3, 1 );
+            AddAiPlayerController( 0 );
+            AddAiPlayerController( 1 );
+            AddAiPlayerController( 2 );
+            AddAiPlayerController( 3 );
+        }
+
+        else if( MenuData.GameMode == Common.GameMode.SinglePlayer2v2 )
+        {
+            SpawnPlayer( 0, 0 );
+            SpawnPlayer( 1, 0 );
+            SpawnPlayer( 2, 1 );
+            SpawnPlayer( 3, 1 );
+            AddKeyboardPlayerController( 0, 0 );
+            AddAiPlayerController( 1 );
+            AddAiPlayerController( 2 );
+            AddAiPlayerController( 3 );
+        }
+
+        else if( MenuData.GameMode == Common.GameMode.TwoPlayer2v2 )
+        {
+            SpawnPlayer( 0, 0 );
+            SpawnPlayer( 1, 0 );
+            SpawnPlayer( 2, 1 );
+            SpawnPlayer( 3, 1 );
+            AddKeyboardPlayerController( 0, 0 );
+            AddAiPlayerController( 1 );
+            AddKeyboardPlayerController( 2, 1 );
+            AddAiPlayerController( 3 );
+        }
+
+        else if( MenuData.GameMode == Common.GameMode.TwoPlayerCoop2v2 )
+        {
+            SpawnPlayer( 0, 0 );
+            SpawnPlayer( 1, 0 );
+            SpawnPlayer( 2, 1 );
+            SpawnPlayer( 3, 1 );
+            AddKeyboardPlayerController( 0, 0 );
+            AddKeyboardPlayerController( 1, 1 );
+            AddAiPlayerController( 2 );
+            AddAiPlayerController( 3 );
+        }
+
+        else if( MenuData.GameMode == Common.GameMode.TwoPlayerCoop2v10 )
+        {
+            SpawnPlayer( 0, 0 );
+            SpawnPlayer( 1, 0 );
+            SpawnPlayer( 2, 1 );
+            SpawnPlayer( 3, 1 );
+            SpawnPlayer( 2, 1 );
+            SpawnPlayer( 3, 1 );
+            SpawnPlayer( 2, 1 );
+            SpawnPlayer( 3, 1 );
+            SpawnPlayer( 2, 1 );
+            SpawnPlayer( 3, 1 );
+            AddKeyboardPlayerController( 0, 0 );
+            AddKeyboardPlayerController( 1, 1 );
+            AddAiPlayerController( 2 );
+            AddAiPlayerController( 3 );
+            AddAiPlayerController( 4 );
+            AddAiPlayerController( 5 );
+            AddAiPlayerController( 6 );
+            AddAiPlayerController( 7 );
+            AddAiPlayerController( 8 );
+            AddAiPlayerController( 9 );
+        }
+
+        else
+        {
+            Debug.LogError("Unsupported game mode: " + MenuData.GameMode);
+        }
     }
 
     void SpawnPlayer(int playerSpriteIndex, int teamIndex)
@@ -340,7 +438,7 @@ public class GameManager : MonoBehaviour
 
     Vector3 GetTeamSpawnPos( int teamIndex )
     {
-        float xVariance = 0f;
+        float xVariance = 0f + (players.Count * .2f);
         Vector3 pos = GetTileCenterPos(playerSpawnLocations[teamIndex].x, playerSpawnLocations[teamIndex].y);
         return new Vector3(pos.x + Random.Range(-xVariance, xVariance), pos.y, 0f);
     }
@@ -420,7 +518,7 @@ public class GameManager : MonoBehaviour
     {
         if( state == gameState )
         {
-            Debug.LogWarning("SetGameState - the state is already set to " + state);
+            //Debug.LogWarning("SetGameState - the state is already set to " + state);
             return;
         }
 
@@ -449,5 +547,11 @@ public class GameManager : MonoBehaviour
     void PrintScores()
     {
         Debug.Log( "SCORE: " + playerScores[0] + " - " + playerScores[1] );
+    }
+
+    void HandleKeyboardInput()
+    {
+        if( Input.GetKeyDown( KeyCode.Escape ) )
+            QuitToMenu();
     }
 }

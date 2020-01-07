@@ -132,7 +132,8 @@ public class PlayerController : MonoBehaviour
         if( !canMoveRight && xVel > 0f )
             xVel = 0f;
 
-        rb.velocity = new Vector2( xVel, rb.velocity.y );
+        if(rb)
+            rb.velocity = new Vector2( xVel, rb.velocity.y );
     }
 
     void ProcessVerticalAxisInput( float verticalInput )

@@ -5,7 +5,7 @@ using UnityEngine;
 public class GoalController : MonoBehaviour
 {
     public delegate void OnGoalEvent_Delegate(GameObject gameObject);
-    public event OnGoalEvent_Delegate OnGoalEvent;
+    public event OnGoalEvent_Delegate OnGoalEvent = delegate{ };
 
     private void OnTriggerEnter2D( Collider2D collision )
     {
