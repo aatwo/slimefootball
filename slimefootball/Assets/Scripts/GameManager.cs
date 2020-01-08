@@ -15,6 +15,8 @@ public class GameManager : MonoBehaviour
     }
     GameState gameState = GameState.Playing;
 
+    [SerializeField] GameObject parentGameObject;
+
     [SerializeField] Tilemap backgroundTilemap;
     [SerializeField] Tile backgroundTile;
 
@@ -29,6 +31,7 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] Text scoreText;
     [SerializeField] Text winnerText;
+    [SerializeField] GameObject inGameMenu;
 
     static public int gameWidth = 32;
     static public int gameHeight = 20;
@@ -61,6 +64,16 @@ public class GameManager : MonoBehaviour
     public void QuitToMenu()
     {
         SceneManager.LoadScene( "menu", LoadSceneMode.Single );
+    }
+
+    public void ShowInGameMenu()
+    {
+        inGameMenu.SetActive(true);
+    }
+
+    public void CloseInGameMenu()
+    {
+        inGameMenu.SetActive( false );
     }
 
     private void Start()
@@ -224,8 +237,8 @@ public class GameManager : MonoBehaviour
         Vector3 leftGoalWorldPos = GetTileBottomLeftPos( goalSpawnLocations[0].x, goalSpawnLocations[0].y );
         Vector3 rightGoalWorldPos = GetTileBottomLeftPos( goalSpawnLocations[1].x, goalSpawnLocations[1].y );
 
-        Transform leftGoal = Instantiate(goalPrefab, leftGoalWorldPos, Quaternion.identity);
-        Transform rightGoal = Instantiate(goalPrefab, rightGoalWorldPos, Quaternion.identity);
+        Transform leftGoal = Instantiate(goalPrefab, leftGoalWorldPos, Quaternion.identity, parentGameObject.transform);
+        Transform rightGoal = Instantiate(goalPrefab, rightGoalWorldPos, Quaternion.identity, parentGameObject.transform);
 
         // Flip the right goal to it's facing the right way then shift it two along to put it back in the correct position 
         // (its position is normally its bottom left, but flipping it in the x axis makes its position its bottom right)
@@ -353,7 +366,7 @@ public class GameManager : MonoBehaviour
 
     void SpawnPlayer(int playerSpriteIndex, int teamIndex)
     {
-        Transform playerTransform = Instantiate(playerPrefab, GetTeamSpawnPos(teamIndex), Quaternion.identity);
+        Transform playerTransform = Instantiate(playerPrefab, GetTeamSpawnPos(teamIndex), Quaternion.identity, parentGameObject.transform);
         PlayerController playerController = playerTransform.GetComponent<PlayerController>();
         if( playerController == null )
             Debug.LogError( "No player controller script found on player (SpawnPlayer)" );
@@ -390,7 +403,7 @@ public class GameManager : MonoBehaviour
 
     void SpawnBall()
     {
-        ball = Instantiate(ballPrefab, GetBallSpawnPos(), Quaternion.identity);
+        ball = Instantiate(ballPrefab, GetBallSpawnPos(), Quaternion.identity, parentGameObject.transform );
     }
 
     void SetupCamera()
@@ -552,6 +565,11 @@ public class GameManager : MonoBehaviour
     void HandleKeyboardInput()
     {
         if( Input.GetKeyDown( KeyCode.Escape ) )
-            QuitToMenu();
+        {
+            if(inGameMenu.activeSelf)
+                CloseInGameMenu();
+            else
+                ShowInGameMenu();
+        }
     }
 }
