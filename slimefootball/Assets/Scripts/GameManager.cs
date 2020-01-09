@@ -32,9 +32,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] Text scoreText;
     [SerializeField] Text winnerText;
 
-    [SerializeField] Text teamOneNameText;
-    [SerializeField] Text teamTwoNameText;
-
     static public int gameWidth = 32;
     static public int gameHeight = 20;
 
@@ -101,6 +98,7 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        Time.timeScale = 1f;
         ResetScores();
         CalculateSpawnLocations();
         GenerateLevel();
