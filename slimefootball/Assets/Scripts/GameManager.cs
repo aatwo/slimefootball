@@ -24,20 +24,24 @@ public class GameManager : MonoBehaviour
     [SerializeField] Tile environmentTile;
 
     [SerializeField] Transform playerPrefab;
-
     [SerializeField] Transform ballPrefab;
-
     [SerializeField] Transform goalPrefab;
 
+    [SerializeField] GameObject inGameMenu;
+    [SerializeField] GameObject showMenuButton;
     [SerializeField] Text scoreText;
     [SerializeField] Text winnerText;
-    [SerializeField] GameObject inGameMenu;
+
+    [SerializeField] Text teamOneNameText;
+    [SerializeField] Text teamTwoNameText;
 
     static public int gameWidth = 32;
     static public int gameHeight = 20;
 
     public int maxScore = 3;
     int[] playerScores = new int[2];
+
+    float prePauseTimeScale = 1f;
 
     Vector2Int[] goalSpawnLocations = new Vector2Int[2];
     Vector2Int[] playerSpawnLocations = new Vector2Int[2];
@@ -68,12 +72,31 @@ public class GameManager : MonoBehaviour
 
     public void ShowInGameMenu()
     {
-        inGameMenu.SetActive(true);
+        inGameMenu.SetActive( true );
+        showMenuButton.SetActive( false );
+        SetGamePaused( true );
     }
 
     public void CloseInGameMenu()
     {
         inGameMenu.SetActive( false );
+        showMenuButton.SetActive( true );
+        SetGamePaused( false );
+    }
+
+    public void SetGamePaused(bool paused)
+    {
+        Rigidbody2D ballRb = ball.GetComponent<Rigidbody2D>();
+
+        if( paused )
+        {
+            prePauseTimeScale = Time.timeScale;
+            Time.timeScale = 0f;
+        }
+        else
+        {
+            Time.timeScale = prePauseTimeScale;
+        }
     }
 
     private void Start()
@@ -133,7 +156,7 @@ public class GameManager : MonoBehaviour
         ResetPositions();
         SetGameState( GameState.Playing );
         foreach( ICustomPlayerController controller in customPlayerControllerList )
-            controller.StartRound( ball, goals, playerScores, maxScore );
+            controller.HandleRoundStarted( ball, goals, playerScores, maxScore );
 
         winnerText.gameObject.SetActive( false );
     }
@@ -143,7 +166,7 @@ public class GameManager : MonoBehaviour
         ResetPositions();
         SetGameState( GameState.Playing );
         foreach( ICustomPlayerController controller in customPlayerControllerList )
-            controller.StartRound( ball, goals, playerScores, maxScore );
+            controller.HandleRoundStarted( ball, goals, playerScores, maxScore );
 
         winnerText.gameObject.SetActive( false );
     }
@@ -152,14 +175,14 @@ public class GameManager : MonoBehaviour
     {
         SetGameState( GameState.Resetting );
         foreach( ICustomPlayerController controller in customPlayerControllerList )
-            controller.EndRound();
+            controller.HandleRoundFinished();
     }
 
     void EndGame()
     {
         SetGameState( GameState.Finished );
         foreach( ICustomPlayerController controller in customPlayerControllerList )
-            controller.EndRound();
+            controller.HandleRoundFinished();
     }
 
     void ResetScores()
@@ -394,8 +417,47 @@ public class GameManager : MonoBehaviour
     void AddAiPlayerController( int playerIndex )
     {
         Player player = players[playerIndex];
-        AiPlayerController aiController = player.transform.gameObject.AddComponent<AiPlayerController>();
 
+        Common.AiImplementations[] teamAiTypes = MenuData.TeamAiImplementations;
+        if( player.teamIndex >= teamAiTypes.Length )
+            Debug.LogError("attempting to attach AI for team index " + player.teamIndex + " but no AI for this index exists");
+
+        Common.AiImplementations aiType = teamAiTypes[player.teamIndex];
+
+        if(aiType == Common.AiImplementations.Random)
+        {
+            aiType = (Common.AiImplementations)Random.Range( (int)Common.AiImplementations.Default, (int)Common.AiImplementations.Random - 1 );
+        }
+
+        ICustomPlayerController aiController = null;
+        switch(aiType)
+        {
+            case Common.AiImplementations.Default:
+            {
+                aiController = player.transform.gameObject.AddComponent<AiPlayerController>();
+                break;
+            }
+
+            case Common.AiImplementations.Aaron:
+            {
+                aiController = player.transform.gameObject.AddComponent<AaronAiPlayerController>();
+                break;
+            }
+
+            case Common.AiImplementations.Rich:
+            {
+                aiController = player.transform.gameObject.AddComponent<RichAiPlayerController>();
+                break;
+            }
+
+            default:
+            {
+                Debug.LogError( "AddAiPlayerController - no implementation for ai type: " + aiType );
+                break;
+            }
+        }
+
+        player.controller.SetNameTag(aiController.GetDisplayName());
         aiController.SetPlayerController( player.controller );
         aiController.SetTeamIndex( player.teamIndex );
         customPlayerControllerList.Add( aiController );

@@ -9,6 +9,11 @@ public class KeyboardPlayerController : MonoBehaviour, ICustomPlayerController
     int playerInputIndex = -1;
     bool hasReleasedJumpSinceLastJump = true;
 
+    public string GetDisplayName()
+    {
+        return "Keyboard";
+    }
+
     public void SetPlayerInputIndex( int n )
     {
         playerInputIndex = n;
@@ -25,12 +30,12 @@ public class KeyboardPlayerController : MonoBehaviour, ICustomPlayerController
         this.playerController = playerController;
     }
 
-    public void StartRound( Transform ball, Transform[] goals, int[] scores, int winningScore )
+    public void HandleRoundStarted( Transform ball, Transform[] goals, int[] scores, int winningScore )
     {
 
     }
 
-    public void EndRound()
+    public void HandleRoundFinished()
     {
 
     }

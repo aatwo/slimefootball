@@ -4,6 +4,15 @@ using UnityEngine;
 
 public class Common : MonoBehaviour
 {
+    public enum AiImplementations
+    {
+        Default,
+        Aaron,
+        Rich,
+
+        Random
+    }
+
     public enum GameMode
     {
         AiOnly1v1,
@@ -31,5 +40,6 @@ public class Common : MonoBehaviour
 
     static public string ballTag = "Ball";
     static public string environmentLayerName = "Environment";
+    static public string playersSortingLayerName = "Players";
 
 }

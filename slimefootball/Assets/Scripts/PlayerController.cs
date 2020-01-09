@@ -7,6 +7,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float maxSpeed = 5f;
     [SerializeField] float jumpForceDurationS = 0.3f;
     [SerializeField] float jumpForcePerSecond = 1000f;
+    [SerializeField] TextMesh nameTag;
 
     Rigidbody2D rb;
     [SerializeField] Sprite[] playerSprites;
@@ -25,6 +26,11 @@ public class PlayerController : MonoBehaviour
     float jumpStartTime = 0f;
     bool canMoveLeft = true;
     bool canMoveRight = true;
+
+    public void SetNameTag(string name)
+    {
+        nameTag.text = name;
+    }
 
     public void SetPlayerSpriteIndex(int index)
     {
@@ -98,6 +104,8 @@ public class PlayerController : MonoBehaviour
 
         if( BottomTriggerDetector == null )
             Debug.LogError( "no bottom detector set in player controller" );
+
+        gameObject.GetComponentInChildren<MeshRenderer>().sortingLayerName = Common.playersSortingLayerName;
 
         // Create trigger detectors and attach them to the specified game objects
 

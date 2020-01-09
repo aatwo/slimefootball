@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AiPlayerController : MonoBehaviour, ICustomPlayerController
+public class RichAiPlayerController : MonoBehaviour, ICustomPlayerController
 {
     Common.Direction direction = Common.Direction.left;
     PlayerController playerController;
@@ -10,7 +10,7 @@ public class AiPlayerController : MonoBehaviour, ICustomPlayerController
 
     public string GetDisplayName()
     {
-        return "Default AI";
+        return "Rich AI";
     }
 
     public void SetPlayerController( PlayerController playerController )

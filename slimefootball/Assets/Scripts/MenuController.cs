@@ -55,6 +55,12 @@ public class MenuController : MonoBehaviour
 
     private void StartGame()
     {
+        // TODO: UI component to select team AI implementations
+        Common.AiImplementations[] teamAiImplementations = new Common.AiImplementations[2];
+        teamAiImplementations[0] = Common.AiImplementations.Aaron;
+        teamAiImplementations[1] = Common.AiImplementations.Rich;
+        MenuData.TeamAiImplementations = teamAiImplementations;
+
         SceneManager.LoadScene( "game", LoadSceneMode.Single );
     }
 }

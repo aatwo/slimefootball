@@ -4,8 +4,9 @@ using UnityEngine;
 
 public interface ICustomPlayerController
 {
+    string GetDisplayName();
     void SetPlayerController( PlayerController playerController );
     void SetTeamIndex( int index );
-    void StartRound( Transform ball, Transform[] goals, int[] scores, int winningScore );
-    void EndRound();
+    void HandleRoundStarted( Transform ball, Transform[] goals, int[] scores, int winningScore );
+    void HandleRoundFinished();
 }
