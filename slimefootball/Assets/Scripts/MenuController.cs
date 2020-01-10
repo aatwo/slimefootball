@@ -8,10 +8,43 @@ public class MenuController : MonoBehaviour
 {
     [SerializeField] Dropdown teamOneAiEdit;
     [SerializeField] Dropdown teamTwoAiEdit;
+    [SerializeField] InputField gameWidthEdit;
+    [SerializeField] InputField gameHeightEdit;
+
+    public static int maxGameWidth = 1000;
+    public static int maxGameHeight = 1000;
 
     private void Start()
     {
         InitUi();
+    }
+
+    public void OnWidthEditLostFocus()
+    {
+        int newWidth;
+        if( !int.TryParse( gameWidthEdit.text, out newWidth ) )
+        {
+            gameWidthEdit.text = "" + MenuData.GameWidth;
+        }
+        else
+        {
+            if( newWidth > maxGameWidth )
+                gameWidthEdit.text = "" + maxGameWidth;
+        }
+    }
+
+    public void OnHeightEditLostFocus()
+    {
+        int newHeight;
+        if( !int.TryParse( gameHeightEdit.text, out newHeight ) )
+        {
+            gameHeightEdit.text = "" + MenuData.GameHeight;
+        }
+        else
+        {
+            if( newHeight > maxGameHeight )
+                gameHeightEdit.text = "" + maxGameHeight;
+        }
     }
 
     public void OnAiOnly1v1ButtonPressed()
@@ -79,6 +112,9 @@ public class MenuController : MonoBehaviour
 
         teamOneAiEdit.value = (int)MenuData.TeamAiImplementations[0];
         teamTwoAiEdit.value = (int)MenuData.TeamAiImplementations[1];
+
+        gameWidthEdit.text = "" + MenuData.GameWidth;
+        gameHeightEdit.text = "" + MenuData.GameHeight;
     }
 
     private void StartGame()
@@ -90,6 +126,9 @@ public class MenuController : MonoBehaviour
         teamAiImplementations[0] = selectedTeamOneAi;
         teamAiImplementations[1] = selectedTeamTwoAi;
         MenuData.TeamAiImplementations = teamAiImplementations;
+
+        MenuData.GameWidth = int.Parse(gameWidthEdit.text);
+        MenuData.GameHeight = int.Parse(gameHeightEdit.text);
 
         SceneManager.LoadScene( "game", LoadSceneMode.Single );
     }

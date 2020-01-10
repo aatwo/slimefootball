@@ -32,8 +32,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] Text scoreText;
     [SerializeField] Text winnerText;
 
-    static public int gameWidth = 32;
-    static public int gameHeight = 20;
+    static public int gameWidth = 24;
+    static public int gameHeight = 14;
 
     public int maxScore = 3;
     int[] playerScores = new int[2];
@@ -99,6 +99,9 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         Time.timeScale = 1f;
+        gameWidth = MenuData.GameWidth;
+        gameHeight = MenuData.GameHeight;
+
         ResetScores();
         CalculateSpawnLocations();
         GenerateLevel();
