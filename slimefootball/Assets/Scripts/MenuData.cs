@@ -11,7 +11,7 @@ public static class MenuData
         set { gameMode = value; }
     }
 
-    private static Common.AiImplementations[] teamAiImplementations = new Common.AiImplementations[] { Common.AiImplementations.Default, Common.AiImplementations.Aaron };
+    private static Common.AiImplementations[] teamAiImplementations = new Common.AiImplementations[] { Common.AiImplementations.Default, Common.AiImplementations.Default };
     public static Common.AiImplementations[] TeamAiImplementations
     {
         get { return teamAiImplementations;  }
