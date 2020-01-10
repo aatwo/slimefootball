@@ -105,13 +105,15 @@ public class GameManager : MonoBehaviour
         SpawnGoals();
         SpawnPlayers();
         SpawnBall();
-        SetupCamera();
+        UpdateCamera();
 
         StartNewRound();
     }
 
     private void Update()
     {
+        UpdateCamera();
+
         switch(gameState)
         {
             case GameState.Resetting:
@@ -461,28 +463,34 @@ public class GameManager : MonoBehaviour
         ball = Instantiate(ballPrefab, GetBallSpawnPos(), Quaternion.identity, parentGameObject.transform );
     }
 
-    void SetupCamera()
+    void UpdateCamera()
     {
+        // Set cam position
         float camX = environmentTilemap.transform.position.x + (0.5f * gameWidth * environmentTilemap.cellSize.x);
         float camY = environmentTilemap.transform.position.y + (0.5f * gameHeight * environmentTilemap.cellSize.y);
+        Camera.main.transform.position = new Vector3( camX, camY, Camera.main.transform.position.z );
 
         { // Make the game height the same as the camera height
 
-            // The orthographicSize is half the size of the vertical viewing volume. The horizontal size of the viewing volume depends on the aspect ratio.
-            Camera.main.orthographicSize = ( gameHeight + 2 * environmentTilemap.cellSize.y ) / 2;
+            // The orthographicSize is half the size of the vertical viewing volume. The horizontal size of the viewing volume depends on the aspect ratio
+
+            // Calculate the desired pixel density for a height based camera size
+            float desiredUnitsPerPixel = (float)gameHeight / (float)Screen.height;
+            float horizontalUnitsVisible = (float)Screen.width * desiredUnitsPerPixel;
+
+            if( gameWidth < horizontalUnitsVisible )
+            {
+                // The game width is entirely visible so height based is fine
+                float verticalUnitsVisible = (float)Screen.height * desiredUnitsPerPixel;
+                Camera.main.orthographicSize = 0.5f * (float)gameHeight;
+            }
+            else
+            {
+                // The full game width can't be seen so it needs to be width based
+                float unitsPerPixel = (float)gameWidth / (float)Screen.width;
+                Camera.main.orthographicSize = 0.5f * unitsPerPixel * (float)Screen.height;
+            }
         }
-
-        { // Make the game width the same as the camera width
-
-            // 1. take the aspect ratio of the game world
-            //float gameWorldAspectRatio = (float)gameWidth / (float)gameHeight;
-
-            //Camera.main.orthographicSize = ( ( gameHeight * environmentTilemap.cellSize.y ) / ( 2f ) ) * gameWorldAspectRatio;
-
-            // TODO: figure out what scale we need to fit either the full width or height into the camera view port
-        }
-
-        Camera.main.transform.position = new Vector3( camX, camY, Camera.main.transform.position.z );
     }
 
     Vector3 GetTileCenterPos(int x, int y)
