@@ -46,12 +46,12 @@ public class GameManager : MonoBehaviour
 
     struct Player
     {
+        public List<ICustomPlayerController> customControllers;
         public PlayerController controller;
         public Transform transform;
         public int teamIndex;
     }
     List<Player> players = new List<Player>();
-    List<ICustomPlayerController> customPlayerControllerList = new List<ICustomPlayerController>();
 
     Transform[] goals = new Transform[2];
     Transform ball;
@@ -153,9 +153,7 @@ public class GameManager : MonoBehaviour
         ResetScores();
         ResetPositions();
         SetGameState( GameState.Playing );
-        foreach( ICustomPlayerController controller in customPlayerControllerList )
-            controller.HandleRoundStarted( ball, goals, playerScores, maxScore );
-
+        NotifyCustomControllersOfRoundStart();
         winnerText.gameObject.SetActive( false );
     }
 
@@ -163,24 +161,20 @@ public class GameManager : MonoBehaviour
     {
         ResetPositions();
         SetGameState( GameState.Playing );
-        foreach( ICustomPlayerController controller in customPlayerControllerList )
-            controller.HandleRoundStarted( ball, goals, playerScores, maxScore );
-
+        NotifyCustomControllersOfRoundStart();
         winnerText.gameObject.SetActive( false );
     }
 
     void EndRound()
     {
         SetGameState( GameState.Resetting );
-        foreach( ICustomPlayerController controller in customPlayerControllerList )
-            controller.HandleRoundFinished();
+        NotifyCustomControllersOfRoundEnd();
     }
 
     void EndGame()
     {
         SetGameState( GameState.Finished );
-        foreach( ICustomPlayerController controller in customPlayerControllerList )
-            controller.HandleRoundFinished();
+        NotifyCustomControllersOfRoundEnd();
     }
 
     void ResetScores()
@@ -395,6 +389,7 @@ public class GameManager : MonoBehaviour
         playerController.SetPlayerSpriteIndex( playerSpriteIndex );
 
         Player player = new Player();
+        player.customControllers = new List<ICustomPlayerController>();
         player.controller = playerController;
         player.transform = playerTransform;
         player.teamIndex = teamIndex;
@@ -409,7 +404,7 @@ public class GameManager : MonoBehaviour
         keyboardController.SetPlayerInputIndex( playerControllerIndex );
         keyboardController.SetTeamIndex( player.teamIndex );
         keyboardController.SetPlayerController( player.controller );
-        customPlayerControllerList.Add( keyboardController );
+        player.customControllers.Add( keyboardController );
     }
 
     void AddAiPlayerController( int playerIndex )
@@ -458,7 +453,7 @@ public class GameManager : MonoBehaviour
         player.controller.SetNameTag(aiController.GetDisplayTag());
         aiController.SetPlayerController( player.controller );
         aiController.SetTeamIndex( player.teamIndex );
-        customPlayerControllerList.Add( aiController );
+        player.customControllers.Add( aiController );
     }
 
     void SpawnBall()
@@ -630,6 +625,48 @@ public class GameManager : MonoBehaviour
                 CloseInGameMenu();
             else
                 ShowInGameMenu();
+        }
+    }
+
+    void NotifyCustomControllersOfRoundStart()
+    {
+        List<Vector3> teamZeroPositions = new List<Vector3>();
+        List<Vector3> teamOnePositions = new List<Vector3>();
+
+        foreach( Player player in players )
+        {
+            if( player.teamIndex == 0 )
+                teamZeroPositions.Add( player.transform.position );
+            else if( player.teamIndex == 1 )
+                teamOnePositions.Add( player.transform.position );
+            else
+                Debug.LogError( "NotifyCustomControllers: found player with unexpected team index (" + player.teamIndex + ")" );
+        }
+
+        foreach( Player player in players )
+        {
+            foreach( ICustomPlayerController customController in player.customControllers )
+            {
+                if( player.teamIndex == 0 )
+                {
+                    customController.HandleRoundStarted( ball, teamZeroPositions, teamOnePositions, goals, playerScores, maxScore );
+                }
+                else if( player.teamIndex == 1)
+                {
+                    customController.HandleRoundStarted( ball, teamOnePositions, teamZeroPositions, goals, playerScores, maxScore );
+                }
+                else
+                    Debug.LogError( "NotifyCustomControllers: found player with unexpected team index (" + player.teamIndex + ")" );
+            }
+        }
+    }
+
+    void NotifyCustomControllersOfRoundEnd()
+    {
+        foreach( Player player in players )
+        {
+            foreach( ICustomPlayerController customController in player.customControllers )
+                customController.HandleRoundFinished();
         }
     }
 }

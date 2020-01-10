@@ -26,7 +26,7 @@ public class RichAiPlayerController : MonoBehaviour, ICustomPlayerController
             direction = Common.Direction.left;
     }
 
-    public void HandleRoundStarted( Transform ball, Transform[] goals, int[] scores, int winningScore )
+    public void HandleRoundStarted( Transform ball, List<Vector3> teamPositions, List<Vector3> opposingTeamPositions, Transform[] goals, int[] scores, int winningScore )
     {
         this.ball = ball;
     }
