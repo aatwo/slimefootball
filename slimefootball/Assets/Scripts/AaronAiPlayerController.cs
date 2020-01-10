@@ -8,9 +8,9 @@ public class AaronAiPlayerController : MonoBehaviour, ICustomPlayerController
     PlayerController playerController;
     Transform ball;
 
-    public string GetDisplayName()
+    public string GetDisplayTag()
     {
-        return "Aaron AI";
+        return Common.ToString(Common.AiImplementations.Aaron);
     }
 
     public void SetPlayerController( PlayerController playerController )

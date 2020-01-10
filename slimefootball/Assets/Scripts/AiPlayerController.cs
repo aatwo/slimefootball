@@ -8,9 +8,9 @@ public class AiPlayerController : MonoBehaviour, ICustomPlayerController
     PlayerController playerController;
     Transform ball;
 
-    public string GetDisplayName()
+    public string GetDisplayTag()
     {
-        return "Default AI";
+        return Common.ToString( Common.AiImplementations.Default );
     }
 
     public void SetPlayerController( PlayerController playerController )

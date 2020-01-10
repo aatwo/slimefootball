@@ -9,7 +9,7 @@ public class KeyboardPlayerController : MonoBehaviour, ICustomPlayerController
     int playerInputIndex = -1;
     bool hasReleasedJumpSinceLastJump = true;
 
-    public string GetDisplayName()
+    public string GetDisplayTag()
     {
         return "Keyboard";
     }

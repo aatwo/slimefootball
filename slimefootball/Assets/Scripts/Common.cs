@@ -13,6 +13,18 @@ public class Common : MonoBehaviour
         Random
     }
 
+    public static string ToString(AiImplementations type)
+    {
+        switch(type)
+        {
+            case AiImplementations.Default: return "Default AI";
+            case AiImplementations.Aaron: return "Aarons AI";
+            case AiImplementations.Rich: return "Richs AI";
+            case AiImplementations.Random: return "Random";
+            default: return "Missing name in Common.cs";
+        }
+    }
+
     public enum GameMode
     {
         AiOnly1v1,

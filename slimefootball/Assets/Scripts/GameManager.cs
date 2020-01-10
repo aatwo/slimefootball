@@ -424,7 +424,7 @@ public class GameManager : MonoBehaviour
 
         if(aiType == Common.AiImplementations.Random)
         {
-            aiType = (Common.AiImplementations)Random.Range( (int)Common.AiImplementations.Default, (int)Common.AiImplementations.Random - 1 );
+            aiType = (Common.AiImplementations)Random.Range( (int)Common.AiImplementations.Default, (int)Common.AiImplementations.Random );
         }
 
         ICustomPlayerController aiController = null;
@@ -455,7 +455,7 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        player.controller.SetNameTag(aiController.GetDisplayName());
+        player.controller.SetNameTag(aiController.GetDisplayTag());
         aiController.SetPlayerController( player.controller );
         aiController.SetTeamIndex( player.teamIndex );
         customPlayerControllerList.Add( aiController );

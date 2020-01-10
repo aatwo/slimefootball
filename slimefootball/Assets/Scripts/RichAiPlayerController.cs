@@ -8,9 +8,9 @@ public class RichAiPlayerController : MonoBehaviour, ICustomPlayerController
     PlayerController playerController;
     Transform ball;
 
-    public string GetDisplayName()
+    public string GetDisplayTag()
     {
-        return "Rich AI";
+        return Common.ToString( Common.AiImplementations.Rich );
     }
 
     public void SetPlayerController( PlayerController playerController )

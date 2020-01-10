@@ -2,9 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class MenuController : MonoBehaviour
 {
+    [SerializeField] Dropdown teamOneAiEdit;
+    [SerializeField] Dropdown teamTwoAiEdit;
+
+    private void Start()
+    {
+        InitUi();
+    }
+
     public void OnAiOnly1v1ButtonPressed()
     {
         MenuData.GameMode = Common.GameMode.AiOnly1v1;
@@ -53,12 +62,33 @@ public class MenuController : MonoBehaviour
         StartGame();
     }
 
+    private void InitUi()
+    {
+        List<string> aiNames = new List<string>();
+        for( int i = 0; i <= (int)Common.AiImplementations.Random; i++ )
+        {
+            Common.AiImplementations type = (Common.AiImplementations)i;
+            aiNames.Add( Common.ToString( type ) );
+        }
+        teamOneAiEdit.AddOptions( aiNames );
+        teamTwoAiEdit.AddOptions( aiNames );
+
+        Common.AiImplementations[] teamAiImplementations = MenuData.TeamAiImplementations;
+        if( teamAiImplementations == null || teamAiImplementations.Length < 2 )
+            Debug.LogError( "teamAiImplementations array in MenuData not the expected length" );
+
+        teamOneAiEdit.value = (int)MenuData.TeamAiImplementations[0];
+        teamTwoAiEdit.value = (int)MenuData.TeamAiImplementations[1];
+    }
+
     private void StartGame()
     {
-        // TODO: UI component to select team AI implementations
+        Common.AiImplementations selectedTeamOneAi = (Common.AiImplementations)teamOneAiEdit.value;
+        Common.AiImplementations selectedTeamTwoAi = (Common.AiImplementations)teamTwoAiEdit.value;
+
         Common.AiImplementations[] teamAiImplementations = new Common.AiImplementations[2];
-        teamAiImplementations[0] = Common.AiImplementations.Aaron;
-        teamAiImplementations[1] = Common.AiImplementations.Rich;
+        teamAiImplementations[0] = selectedTeamOneAi;
+        teamAiImplementations[1] = selectedTeamTwoAi;
         MenuData.TeamAiImplementations = teamAiImplementations;
 
         SceneManager.LoadScene( "game", LoadSceneMode.Single );
