@@ -630,15 +630,15 @@ public class GameManager : MonoBehaviour
 
     void NotifyCustomControllersOfRoundStart()
     {
-        List<Vector3> teamZeroPositions = new List<Vector3>();
-        List<Vector3> teamOnePositions = new List<Vector3>();
+        List<Transform> teamZeroPositions = new List<Transform>();
+        List<Transform> teamOnePositions = new List<Transform>();
 
         foreach( Player player in players )
         {
             if( player.teamIndex == 0 )
-                teamZeroPositions.Add( player.transform.position );
+                teamZeroPositions.Add( player.transform );
             else if( player.teamIndex == 1 )
-                teamOnePositions.Add( player.transform.position );
+                teamOnePositions.Add( player.transform );
             else
                 Debug.LogError( "NotifyCustomControllers: found player with unexpected team index (" + player.teamIndex + ")" );
         }

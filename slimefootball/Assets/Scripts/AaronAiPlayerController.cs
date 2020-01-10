@@ -7,6 +7,7 @@ public class AaronAiPlayerController : MonoBehaviour, ICustomPlayerController
     Common.Direction direction = Common.Direction.left;
     PlayerController playerController;
     Transform ball;
+    List<Transform> opposingTeamPositions;
 
     public string GetDisplayTag()
     {
@@ -26,9 +27,10 @@ public class AaronAiPlayerController : MonoBehaviour, ICustomPlayerController
             direction = Common.Direction.left;
     }
 
-    public void HandleRoundStarted( Transform ball, List<Vector3> teamPositions, List<Vector3> opposingTeamPositions, Transform[] goals, int[] scores, int winningScore )
+    public void HandleRoundStarted( Transform ball, List<Transform> teamPositions, List<Transform> opposingTeamPositions, Transform[] goals, int[] scores, int winningScore )
     {
         this.ball = ball;
+        this.opposingTeamPositions = teamPositions;
     }
 
     public void HandleRoundFinished()
@@ -40,6 +42,11 @@ public class AaronAiPlayerController : MonoBehaviour, ICustomPlayerController
     void Update()
     {
         PerformAi();
+
+        if( opposingTeamPositions != null && opposingTeamPositions.Count > 0 )
+        {
+            Debug.Log( "x: " + opposingTeamPositions[0].position.x + ", y: " + opposingTeamPositions[0].position.y );
+        }
     }
 
     void PerformAi()

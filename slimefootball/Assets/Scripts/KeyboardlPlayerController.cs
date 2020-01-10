@@ -30,7 +30,7 @@ public class KeyboardPlayerController : MonoBehaviour, ICustomPlayerController
         this.playerController = playerController;
     }
 
-    public void HandleRoundStarted( Transform ball, List<Vector3> teamPositions, List<Vector3> opposingTeamPositions, Transform[] goals, int[] scores, int winningScore )
+    public void HandleRoundStarted( Transform ball, List<Transform> teamPositions, List<Transform> opposingTeamPositions, Transform[] goals, int[] scores, int winningScore )
     {
 
     }
