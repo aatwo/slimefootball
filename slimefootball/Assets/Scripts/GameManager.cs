@@ -217,8 +217,8 @@ public class GameManager : MonoBehaviour
     void UpdateScoreUis()
     {
         scoreText.text = teamScores[0] + " - " + teamScores[1];
-        gamesWonText_TeamOne.text = "Team one: " + teamGameScores[0];
-        gamesWonText_TeamTwo.text = "Team two: " + teamGameScores[1];
+        gamesWonText_TeamOne.text = "Team One: " + teamGameScores[0];
+        gamesWonText_TeamTwo.text = "Team Two: " + teamGameScores[1];
     }
 
     void ResetPositions()
