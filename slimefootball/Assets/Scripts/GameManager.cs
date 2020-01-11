@@ -32,11 +32,15 @@ public class GameManager : MonoBehaviour
     [SerializeField] Text scoreText;
     [SerializeField] Text winnerText;
 
+    [SerializeField] Text gamesWonText_TeamOne;
+    [SerializeField] Text gamesWonText_TeamTwo;
+
     static public int gameWidth = 24;
     static public int gameHeight = 14;
 
     public int maxScore = 3;
-    int[] playerScores = new int[2];
+    int[] teamScores = new int[2] { 0, 0 };
+    int[] teamGameScores = new int[2] { 0, 0 };
 
     float prePauseTimeScale = 1f;
 
@@ -184,19 +188,37 @@ public class GameManager : MonoBehaviour
 
     void ResetScores()
     {
-        int[] scores = new int[2];
-        scores[0] = 0;
-        scores[1] = 0;
-        SetScores( scores );
-    }
-
-    void SetScores( int[] scores )
-    {
-        if( playerScores.Length != 2 )
+        if( teamScores.Length != 2 )
             Debug.LogError( "setScores array was an unexpected size" );
 
-        playerScores = scores;
-        scoreText.text = playerScores[0] + " - " + playerScores[1];
+        teamScores[0] = 0;
+        teamScores[1] = 0;
+        UpdateScoreUis();
+    }
+
+    void IncrementScore( int teamIndex )
+    {
+        if( teamIndex < 0 || teamIndex >= 2 )
+            Debug.LogError( "IncrementScore: invalid index provided" );
+
+        teamScores[teamIndex]++;
+        UpdateScoreUis();
+    }
+
+    void IncrementGameScore( int teamIndex )
+    {
+        if( teamIndex < 0 || teamIndex >= 2 )
+            Debug.LogError( "IncrementGameScore: invalid index provided" );
+
+        teamGameScores[teamIndex]++;
+        UpdateScoreUis();
+    }
+
+    void UpdateScoreUis()
+    {
+        scoreText.text = teamScores[0] + " - " + teamScores[1];
+        gamesWonText_TeamOne.text = "Team one: " + teamGameScores[0];
+        gamesWonText_TeamTwo.text = "Team two: " + teamGameScores[1];
     }
 
     void ResetPositions()
@@ -578,11 +600,10 @@ public class GameManager : MonoBehaviour
 
     void HandleTeamScore( int teamIndex )
     {
-        int [] newScores = playerScores;
-        newScores[teamIndex]++;
-        SetScores( newScores );
-        if( playerScores[teamIndex] >= maxScore )
+        IncrementScore( teamIndex );
+        if( teamScores[teamIndex] >= maxScore )
         {
+            IncrementGameScore( teamIndex );
             HandleTeamWin( teamIndex );
         }
         else
@@ -625,7 +646,7 @@ public class GameManager : MonoBehaviour
 
     void PrintScores()
     {
-        Debug.Log( "SCORE: " + playerScores[0] + " - " + playerScores[1] );
+        Debug.Log( "SCORE: " + teamScores[0] + " - " + teamScores[1] );
     }
 
     void HandleKeyboardInput()
@@ -660,11 +681,11 @@ public class GameManager : MonoBehaviour
             {
                 if( player.teamIndex == 0 )
                 {
-                    customController.HandleRoundStarted( ball, teamZeroPositions, teamOnePositions, goals, playerScores, maxScore );
+                    customController.HandleRoundStarted( ball, teamZeroPositions, teamOnePositions, goals, teamScores, maxScore );
                 }
                 else if( player.teamIndex == 1)
                 {
-                    customController.HandleRoundStarted( ball, teamOnePositions, teamZeroPositions, goals, playerScores, maxScore );
+                    customController.HandleRoundStarted( ball, teamOnePositions, teamZeroPositions, goals, teamScores, maxScore );
                 }
                 else
                     Debug.LogError( "NotifyCustomControllers: found player with unexpected team index (" + player.teamIndex + ")" );
