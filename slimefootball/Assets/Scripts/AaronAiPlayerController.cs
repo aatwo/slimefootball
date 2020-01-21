@@ -9,6 +9,19 @@ public class AaronAiPlayerController : MonoBehaviour, ICustomPlayerController
     Transform ball;
     List<Transform> opposingTeamPositions;
 
+    Transform myGoal;
+    int myIndex = -1;
+
+    float lastTimeStateChange = 0f;
+
+    enum AiState
+    {
+        attacking,
+        defending
+    }
+
+    AiState aiState = AiState.attacking;
+
     public string GetDisplayTag()
     {
         return Common.ToString(Common.AiImplementations.Aaron);
@@ -21,6 +34,7 @@ public class AaronAiPlayerController : MonoBehaviour, ICustomPlayerController
 
     public void SetTeamIndex( int index )
     {
+        myIndex = index;
         if(index == 0)
             direction = Common.Direction.right;
         else
@@ -30,7 +44,10 @@ public class AaronAiPlayerController : MonoBehaviour, ICustomPlayerController
     public void HandleRoundStarted( Transform ball, List<Transform> teamPositions, List<Transform> opposingTeamPositions, Transform[] goals, int[] scores, int winningScore )
     {
         this.ball = ball;
-        this.opposingTeamPositions = teamPositions;
+        this.myGoal = goals[myIndex];
+        this.opposingTeamPositions = opposingTeamPositions;
+
+        lastTimeStateChange = Time.time;
     }
 
     public void HandleRoundFinished()
@@ -42,11 +59,6 @@ public class AaronAiPlayerController : MonoBehaviour, ICustomPlayerController
     void Update()
     {
         PerformAi();
-
-        if( opposingTeamPositions != null && opposingTeamPositions.Count > 0 )
-        {
-            Debug.Log( "x: " + opposingTeamPositions[0].position.x + ", y: " + opposingTeamPositions[0].position.y );
-        }
     }
 
     void PerformAi()
@@ -54,6 +66,40 @@ public class AaronAiPlayerController : MonoBehaviour, ICustomPlayerController
         if( playerController == null || ball == null )
             return;
 
+        float timeElapsedSinceLastStateChange = Time.time - lastTimeStateChange;
+        if(timeElapsedSinceLastStateChange > 10f)
+        {
+            if (aiState == AiState.attacking)
+                aiState = AiState.defending;
+            else
+                aiState = AiState.attacking;
+            lastTimeStateChange = Time.time;
+        }
+
+        switch (aiState)
+        {
+            case AiState.attacking:
+            {
+                PerformAttackingAi();
+                break;
+            }
+
+            case AiState.defending:
+            {
+                PerformDefendingAi();
+                break;
+            }
+
+            default:
+            {
+                Debug.LogError("unhandled AI state in aaron ai implementation");
+                break;
+            }
+        }
+    }
+
+    void PerformAttackingAi()
+    {
         float playerX = playerController.transform.position.x;
         float ballX = ball.transform.position.x;
 
@@ -63,11 +109,11 @@ public class AaronAiPlayerController : MonoBehaviour, ICustomPlayerController
         float distanceToBall = Mathf.Abs(playerX - ballX);
 
         // Blindly move towards the ball
-        if( playerX > ballX )
+        if (playerX > ballX)
         {
-            if( direction == Common.Direction.left )
+            if (direction == Common.Direction.left)
             {
-                if( distanceToBall < 1f )
+                if (distanceToBall < 1f)
                 {
                     playerController.MoveRight();
                 }
@@ -81,11 +127,11 @@ public class AaronAiPlayerController : MonoBehaviour, ICustomPlayerController
                 playerController.MoveLeft();
             }
         }
-        else if( playerX < ballX )
+        else if (playerX < ballX)
         {
-            if( direction == Common.Direction.right )
+            if (direction == Common.Direction.right)
             {
-                if( distanceToBall < 1f )
+                if (distanceToBall < 1f)
                 {
                     playerController.MoveLeft();
                 }
@@ -103,9 +149,52 @@ public class AaronAiPlayerController : MonoBehaviour, ICustomPlayerController
         // If the ball is within a specific vertical window then jump
         float jumpXRange = 2f;
         float jumpYRange = 2f;
-        if( ballX > ( playerX - jumpXRange / 2f) && ballX < ( playerX + jumpXRange / 2f ) )
+        if (ballX > (playerX - jumpXRange / 2f) && ballX < (playerX + jumpXRange / 2f))
         {
-            if( ballY > playerY && ballY < ( playerY + jumpYRange ) )
+            if (ballY > playerY && ballY < (playerY + jumpYRange))
+            {
+                playerController.Jump();
+            }
+        }
+    }
+
+    void PerformDefendingAi()
+    {
+        if (myGoal == null)
+            Debug.LogError("PerformDefendingAi: myGoal is null");
+
+        float playerX = playerController.transform.position.x;
+        float ballX = ball.transform.position.x;
+
+        float playerY = playerController.transform.position.y;
+        float ballY = ball.transform.position.y;
+
+        float distanceToBall = Mathf.Abs(playerX - ballX);
+
+        float goalOffset = 3f;
+        if (direction == Common.Direction.left)
+            goalOffset *= -1f;
+
+        float myGoalX = myGoal.position.x + goalOffset;
+        float distanceToMyGoal = Mathf.Abs(playerX - myGoalX);
+        if (distanceToMyGoal > 0.5f)
+        {
+            float movementMultiplier = 1;
+            if(playerX > myGoalX)
+            {
+                movementMultiplier = -1f;
+            }
+            playerController.MoveHorizontal(movementMultiplier);
+        }
+        else
+        {
+            playerController.MoveHorizontal(0f);
+        }
+
+        // If the ball is within a specific vertical window then jump
+        if (distanceToBall < 2f)
+        {
+            if (ballY > playerY)
             {
                 playerController.Jump();
             }
