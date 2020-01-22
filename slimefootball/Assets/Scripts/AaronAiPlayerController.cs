@@ -20,7 +20,7 @@ public class AaronAiPlayerController : MonoBehaviour, ICustomPlayerController
         defending
     }
 
-    AiState aiState = AiState.attacking;
+    AiState aiState = AiState.defending;
 
     public string GetDisplayTag()
     {
@@ -66,6 +66,7 @@ public class AaronAiPlayerController : MonoBehaviour, ICustomPlayerController
         if( playerController == null || ball == null )
             return;
 
+        /*
         float timeElapsedSinceLastStateChange = Time.time - lastTimeStateChange;
         if(timeElapsedSinceLastStateChange > 10f)
         {
@@ -75,6 +76,7 @@ public class AaronAiPlayerController : MonoBehaviour, ICustomPlayerController
                 aiState = AiState.attacking;
             lastTimeStateChange = Time.time;
         }
+        */
 
         switch (aiState)
         {
@@ -177,7 +179,17 @@ public class AaronAiPlayerController : MonoBehaviour, ICustomPlayerController
 
         float myGoalX = myGoal.position.x + goalOffset;
         float distanceToMyGoal = Mathf.Abs(playerX - myGoalX);
-        if (distanceToMyGoal > 0.5f)
+
+        // Always move towards the ball if it is behind us
+        if (ballX > (playerX - 1f) && direction == Common.Direction.left)
+        {
+            playerController.MoveHorizontal(1f);
+        }
+        else if (ballX < (playerX + 1f) && direction == Common.Direction.right)
+        {
+            playerController.MoveHorizontal(-1f);
+        }
+        else if (distanceToMyGoal > 0.5f)
         {
             float movementMultiplier = 1;
             if(playerX > myGoalX)
@@ -192,9 +204,10 @@ public class AaronAiPlayerController : MonoBehaviour, ICustomPlayerController
         }
 
         // If the ball is within a specific vertical window then jump
-        if (distanceToBall < 2f)
+        if (distanceToBall < 3f)
         {
-            if (ballY > playerY)
+            float jumpOffset = 1f;
+            if (ballY > playerY + jumpOffset && ballY < playerY + 4)
             {
                 playerController.Jump();
             }
