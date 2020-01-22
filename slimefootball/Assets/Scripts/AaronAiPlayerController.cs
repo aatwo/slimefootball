@@ -12,15 +12,18 @@ public class AaronAiPlayerController : MonoBehaviour, ICustomPlayerController
     Transform myGoal;
     int myIndex = -1;
 
-    float lastTimeStateChange = 0f;
-
-    enum AiState
+    public enum AiState
     {
         attacking,
         defending
     }
 
     AiState aiState = AiState.defending;
+
+    public void SetAiState(AiState state)
+    {
+        aiState = state;
+    }
 
     public string GetDisplayTag()
     {
@@ -46,8 +49,6 @@ public class AaronAiPlayerController : MonoBehaviour, ICustomPlayerController
         this.ball = ball;
         this.myGoal = goals[myIndex];
         this.opposingTeamPositions = opposingTeamPositions;
-
-        lastTimeStateChange = Time.time;
     }
 
     public void HandleRoundFinished()
@@ -65,18 +66,6 @@ public class AaronAiPlayerController : MonoBehaviour, ICustomPlayerController
     {
         if( playerController == null || ball == null )
             return;
-
-        /*
-        float timeElapsedSinceLastStateChange = Time.time - lastTimeStateChange;
-        if(timeElapsedSinceLastStateChange > 10f)
-        {
-            if (aiState == AiState.attacking)
-                aiState = AiState.defending;
-            else
-                aiState = AiState.attacking;
-            lastTimeStateChange = Time.time;
-        }
-        */
 
         switch (aiState)
         {
@@ -206,7 +195,7 @@ public class AaronAiPlayerController : MonoBehaviour, ICustomPlayerController
         // If the ball is within a specific vertical window then jump
         if (distanceToBall < 3f)
         {
-            float jumpOffset = 1f;
+            float jumpOffset = 0.5f;
             if (ballY > playerY + jumpOffset && ballY < playerY + 4)
             {
                 playerController.Jump();

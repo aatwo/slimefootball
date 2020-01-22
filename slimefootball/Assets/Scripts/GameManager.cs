@@ -320,6 +320,32 @@ public class GameManager : MonoBehaviour
             AddAiPlayerController( 1 );
         }
 
+        else if (MenuData.GameMode == Common.GameMode.SinglePlayer1v2)
+        {
+            SpawnPlayer(0, 0);
+            SpawnPlayer(1, 1);
+            SpawnPlayer(2, 1);
+            AddKeyboardPlayerController(0, 0);
+            AddAiPlayerController(1);
+            AddAiPlayerController(2);
+
+            // TODO: find a better way to do this
+
+            { // Set one AI attacking (if it's an aaron AI)
+                Player player = players[1];
+                AaronAiPlayerController aaronAiController = player.transform.gameObject.GetComponent<AaronAiPlayerController>();
+                if (aaronAiController != null)
+                    aaronAiController.SetAiState(AaronAiPlayerController.AiState.defending);
+            }
+
+            { // Set one AI defending (if it's an aaron AI)
+                Player player = players[2];
+                AaronAiPlayerController aaronAiController = player.transform.gameObject.GetComponent<AaronAiPlayerController>();
+                if (aaronAiController != null)
+                    aaronAiController.SetAiState(AaronAiPlayerController.AiState.attacking);
+            }
+        }
+
         else if( MenuData.GameMode == Common.GameMode.TwoPlayer1v1 )
         {
             SpawnPlayer( 0, 0 );

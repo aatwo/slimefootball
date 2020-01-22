@@ -29,6 +29,7 @@ public class Common : MonoBehaviour
     {
         AiOnly1v1,
         SinglePlayer1v1,
+        SinglePlayer1v2,
         TwoPlayer1v1,
         AiOnly2v2,
         SinglePlayer2v2,

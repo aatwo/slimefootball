@@ -59,6 +59,12 @@ public class MenuController : MonoBehaviour
         StartGame();
     }
 
+    public void OnSinglePlayer1v2ButtonPressed()
+    {
+        MenuData.GameMode = Common.GameMode.SinglePlayer1v2;
+        StartGame();
+    }
+
     public void OnTwoPlayer1v1ButtonPressed()
     {
         MenuData.GameMode = Common.GameMode.TwoPlayer1v1;
