@@ -10,6 +10,8 @@ public class AaronAiPlayerController : MonoBehaviour, ICustomPlayerController
     List<Transform> opposingTeamPositions;
 
     Transform myGoal;
+    Transform enemyGoal;
+    List<Transform> goals;
     int myIndex = -1;
 
     public enum AiState
@@ -48,7 +50,15 @@ public class AaronAiPlayerController : MonoBehaviour, ICustomPlayerController
     {
         this.ball = ball;
         this.myGoal = goals[myIndex];
+        if (myIndex == 0)
+            enemyGoal = goals[1];
+        else
+            enemyGoal = goals[0];
         this.opposingTeamPositions = opposingTeamPositions;
+        this.goals = new List<Transform>();
+        for (int i = 0; i < goals.Length; i++)
+            this.goals.Add(goals[i]);
+
     }
 
     public void HandleRoundFinished()
@@ -66,6 +76,8 @@ public class AaronAiPlayerController : MonoBehaviour, ICustomPlayerController
     {
         if( playerController == null || ball == null )
             return;
+
+        CalculateAiState();
 
         switch (aiState)
         {
@@ -87,6 +99,67 @@ public class AaronAiPlayerController : MonoBehaviour, ICustomPlayerController
                 break;
             }
         }
+    }
+
+    Vector3 GetAveragePos(List<Transform> transforms)
+    {
+        int count = 1;
+        float averageX = 0f;
+        float averageY = 0f;
+        foreach(Transform t in transforms)
+        {
+            count++;
+            averageX += t.position.x;
+            averageY += t.position.y;
+        }
+        averageX /= (float)count;
+        averageY /= (float)count;
+
+        return new Vector3(averageX, averageY, 0f);
+    }
+
+    void CalculateAiState()
+    {
+        if (goals.Count != 2)
+            return;
+
+        Vector3 averageEnemyPosition = GetAveragePos(opposingTeamPositions);
+
+        //Vector3 averageGoalPosition = GetAveragePos(goals);
+        //float ballX = ball.transform.position.x;
+
+        bool ballIsCloserToMyGoal = Vector3.Distance(myGoal.transform.position, ball.transform.position) < Vector3.Distance(enemyGoal.transform.position, ball.transform.position);
+        bool enemyIsCloserToMyGoal = Vector3.Distance(averageEnemyPosition, myGoal.transform.position) < Vector3.Distance(averageEnemyPosition, enemyGoal.transform.position);
+
+        if (ballIsCloserToMyGoal && enemyIsCloserToMyGoal)
+        {
+            aiState = AiState.defending;
+        }
+        else if (ballIsCloserToMyGoal && !enemyIsCloserToMyGoal)
+        {
+            // Default to attacking
+            aiState = AiState.attacking;
+
+            // If the ball is above a certain velocity it should be defending instead
+            Rigidbody2D ballRb = ball.gameObject.GetComponent<Rigidbody2D>();
+            if(ballRb && ballRb.velocity.x > 10f)
+            {
+                aiState = AiState.defending;
+            }
+        }
+        else if (!ballIsCloserToMyGoal && enemyIsCloserToMyGoal)
+        {
+            aiState = AiState.attacking;
+        }
+        else if (!ballIsCloserToMyGoal && !enemyIsCloserToMyGoal)
+        {
+            aiState = AiState.defending;
+        }
+
+        // ballX and enemyX in their half = defend
+        // ballX and enemyX in our half = attack
+        // ballX in theirs and enemyX in ours = attack
+        // ballX in ours and enemyX in theirs = attack
     }
 
     void PerformAttackingAi()
