@@ -20,10 +20,12 @@ public class AaronAiPlayerController : MonoBehaviour, ICustomPlayerController
         defending
     }
 
+    bool aiStateFixed = false;
     AiState aiState = AiState.defending;
 
-    public void SetAiState(AiState state)
+    public void SetFixedAiState(AiState state)
     {
+        aiStateFixed = true;
         aiState = state;
     }
 
@@ -77,7 +79,8 @@ public class AaronAiPlayerController : MonoBehaviour, ICustomPlayerController
         if( playerController == null || ball == null )
             return;
 
-        CalculateAiState();
+        if(!aiStateFixed)
+            CalculateAiState();
 
         switch (aiState)
         {
