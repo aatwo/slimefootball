@@ -335,14 +335,14 @@ public class GameManager : MonoBehaviour
                 Player player = players[1];
                 AaronAiPlayerController aaronAiController = player.transform.gameObject.GetComponent<AaronAiPlayerController>();
                 if (aaronAiController != null)
-                    aaronAiController.SetAiState(AaronAiPlayerController.AiState.defending);
+                    aaronAiController.SetFixedAiState(AaronAiPlayerController.AiState.defending);
             }
 
             { // Set one AI defending (if it's an aaron AI)
                 Player player = players[2];
                 AaronAiPlayerController aaronAiController = player.transform.gameObject.GetComponent<AaronAiPlayerController>();
                 if (aaronAiController != null)
-                    aaronAiController.SetAiState(AaronAiPlayerController.AiState.attacking);
+                    aaronAiController.SetFixedAiState(AaronAiPlayerController.AiState.attacking);
             }
         }
 
