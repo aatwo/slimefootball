@@ -127,12 +127,13 @@ public class AaronAiPlayerController : MonoBehaviour, ICustomPlayerController
             return;
 
         Vector3 averageEnemyPosition = GetAveragePos(opposingTeamPositions);
-
-        //Vector3 averageGoalPosition = GetAveragePos(goals);
-        //float ballX = ball.transform.position.x;
-
         bool ballIsCloserToMyGoal = Vector3.Distance(myGoal.transform.position, ball.transform.position) < Vector3.Distance(enemyGoal.transform.position, ball.transform.position);
         bool enemyIsCloserToMyGoal = Vector3.Distance(averageEnemyPosition, myGoal.transform.position) < Vector3.Distance(averageEnemyPosition, enemyGoal.transform.position);
+
+        // ballX and enemyX in their half = defend
+        // ballX and enemyX in our half = attack
+        // ballX in theirs and enemyX in ours = attack
+        // ballX in ours and enemyX in theirs = attack
 
         if (ballIsCloserToMyGoal && enemyIsCloserToMyGoal)
         {
@@ -158,11 +159,6 @@ public class AaronAiPlayerController : MonoBehaviour, ICustomPlayerController
         {
             aiState = AiState.defending;
         }
-
-        // ballX and enemyX in their half = defend
-        // ballX and enemyX in our half = attack
-        // ballX in theirs and enemyX in ours = attack
-        // ballX in ours and enemyX in theirs = attack
     }
 
     void PerformAttackingAi()
