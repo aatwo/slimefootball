@@ -328,22 +328,6 @@ public class GameManager : MonoBehaviour
             AddKeyboardPlayerController(0, 0);
             AddAiPlayerController(1);
             AddAiPlayerController(2);
-
-            // TODO: find a better way to do this
-
-            { // Set one AI attacking (if it's an aaron AI)
-                Player player = players[1];
-                AaronAiPlayerController aaronAiController = player.transform.gameObject.GetComponent<AaronAiPlayerController>();
-                if (aaronAiController != null)
-                    aaronAiController.SetFixedAiState(AaronAiPlayerController.AiState.defending);
-            }
-
-            { // Set one AI defending (if it's an aaron AI)
-                Player player = players[2];
-                AaronAiPlayerController aaronAiController = player.transform.gameObject.GetComponent<AaronAiPlayerController>();
-                if (aaronAiController != null)
-                    aaronAiController.SetFixedAiState(AaronAiPlayerController.AiState.attacking);
-            }
         }
 
         else if( MenuData.GameMode == Common.GameMode.TwoPlayer1v1 )
@@ -429,6 +413,53 @@ public class GameManager : MonoBehaviour
         else
         {
             Debug.LogError("Unsupported game mode: " + MenuData.GameMode);
+        }
+
+        // TODO: set half the Aaron AI players on each team to defend and half to attack
+        List<Player> teamZeroPlayers = new List<Player>();
+        List<Player> teamOnePlayers = new List<Player>();
+        foreach (Player player in players)
+        {
+            if (player.teamIndex == 0)
+                teamZeroPlayers.Add(player);
+            else if (player.teamIndex == 1)
+                teamOnePlayers.Add(player);
+        }
+
+        if(teamZeroPlayers.Count > 1)
+        {
+            bool setAttack = false;
+            foreach (Player player in teamZeroPlayers)
+            {
+                AaronAiPlayerController aaronAiController = player.controller.GetComponent<AaronAiPlayerController>();
+                if (aaronAiController)
+                {
+                    if (setAttack)
+                        aaronAiController.SetFixedAiState(AaronAiPlayerController.AiState.attacking);
+                    else
+                        aaronAiController.SetFixedAiState(AaronAiPlayerController.AiState.defending);
+
+                    setAttack = !setAttack;
+                }
+            }
+        }
+
+        if (teamOnePlayers.Count > 1)
+        {
+            bool setAttack = false;
+            foreach (Player player in teamOnePlayers)
+            {
+                AaronAiPlayerController aaronAiController = player.controller.GetComponent<AaronAiPlayerController>();
+                if (aaronAiController)
+                {
+                    if (setAttack)
+                        aaronAiController.SetFixedAiState(AaronAiPlayerController.AiState.attacking);
+                    else
+                        aaronAiController.SetFixedAiState(AaronAiPlayerController.AiState.defending);
+
+                    setAttack = !setAttack;
+                }
+            }
         }
     }
 
