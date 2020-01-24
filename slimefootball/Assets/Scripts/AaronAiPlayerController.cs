@@ -178,16 +178,16 @@ public class AaronAiPlayerController : MonoBehaviour, ICustomPlayerController
             {
                 if (distanceToBall < 1f)
                 {
-                    playerController.MoveRight();
+                    playerController.MoveHorizontal(1f);
                 }
                 else
                 {
-                    playerController.MoveLeft();
+                    playerController.MoveHorizontal(-1f);
                 }
             }
             else
             {
-                playerController.MoveLeft();
+                playerController.MoveHorizontal(-1f);
             }
         }
         else if (playerX < ballX)
@@ -196,16 +196,16 @@ public class AaronAiPlayerController : MonoBehaviour, ICustomPlayerController
             {
                 if (distanceToBall < 1f)
                 {
-                    playerController.MoveLeft();
+                    playerController.MoveHorizontal(-1f);
                 }
                 else
                 {
-                    playerController.MoveRight();
+                    playerController.MoveHorizontal(1f);
                 }
             }
             else
             {
-                playerController.MoveRight();
+                playerController.MoveHorizontal(1f);
             }
         }
 
