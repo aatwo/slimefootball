@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    public delegate void OnSetUsingAbilityEvent_delegate(PlayerController playerController, Common.Ability ability, bool activated);
+    public event OnSetUsingAbilityEvent_delegate OnSetUsingAbilityEvent = delegate { };
+
     [SerializeField] float maxSpeed = 5f;
     [SerializeField] float jumpForceDurationS = 0.3f;
     [SerializeField] float jumpForcePerSecond = 1000f;
@@ -15,6 +18,16 @@ public class PlayerController : MonoBehaviour
     [SerializeField] GameObject RightTriggerDetector;
     [SerializeField] GameObject BottomTriggerDetector;
 
+    // Singleshot abilities
+    float abilityCooldownS = 2f;
+    float timeAbilityLastActivated = 0f;
+
+    // Duration based abilities
+    float abilityDurationS = 2f;
+
+    bool abilityActivated = false;
+    float horizontalMovementMultiplier = 1f;
+
     public enum JumpState
     {
         can_jump,
@@ -22,6 +35,7 @@ public class PlayerController : MonoBehaviour
         falling
     };
 
+    Common.Ability ability = Common.Ability.turbo_running;
     JumpState jumpState = JumpState.can_jump;
     float jumpStartTime = 0f;
     bool canMoveLeft = true;
@@ -71,6 +85,55 @@ public class PlayerController : MonoBehaviour
         ProcessVerticalAxisInput( clampedValue );
     }
 
+    public void SetUsingAbility(bool activated)
+    {
+        if (activated == abilityActivated)
+            return;
+
+        if(activated)
+        {
+            // Return if cooldown not expired
+            float durationSinceLastActivation = Time.time - timeAbilityLastActivated;
+            if (durationSinceLastActivation < abilityCooldownS)
+                return;
+
+            timeAbilityLastActivated = Time.time;
+            Debug.Log("PLAYER ACTIVATED THEIR ABILITY");
+        }
+        else
+        {
+            Debug.Log("PLAYER DEACTIVATED THEIR ABILITY");
+            timeAbilityLastActivated = Time.time;
+        }
+
+        abilityActivated = activated;
+        OnSetUsingAbilityEvent(this, ability, activated);
+
+        // We handle any local abilities (e.g. changing how we move) and who ever is managing the game deals with the rest.
+        switch (ability)
+        {
+            case Common.Ability.ball_reverse:
+            {
+                // handled by game manager
+                break;
+            }
+
+            case Common.Ability.turbo_running:
+            {
+                if (activated)
+                    horizontalMovementMultiplier = 2f;
+                else
+                    horizontalMovementMultiplier = 1f;
+                break;
+            }
+
+            default:
+            {
+                break;
+            }
+        }
+    }
+
     public JumpState GetJumpState()
     {
         return jumpState;
@@ -89,6 +152,9 @@ public class PlayerController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        ability = (Common.Ability)Random.Range((int)Common.Ability.normal, (int)Common.Ability.count);
+        SetNameTag(Common.ToString(ability));
+
         rb = GetComponent<Rigidbody2D>();
         if( rb == null )
             Debug.LogError( "no rigid body in player" );
@@ -132,7 +198,7 @@ public class PlayerController : MonoBehaviour
 
     void ProcessHorizontalAxisInput( float horizontalInput )
     {
-        float xVel = horizontalInput * maxSpeed;
+        float xVel = horizontalInput * maxSpeed * horizontalMovementMultiplier;
 
         if( !canMoveLeft && xVel < 0f )
             xVel = 0f;

@@ -55,6 +55,7 @@ public class KeyboardPlayerController : MonoBehaviour, ICustomPlayerController
 
         string horizontalAxisName = "Horizontal" + playerInputIndex + "_key";
         string verticalAxisName = "Vertical" + playerInputIndex + "_key";
+        string abilityName = "Ability" + playerInputIndex + "_key";
 
         float horizontalInput = Input.GetAxis( horizontalAxisName );
         playerController.MoveHorizontal( horizontalInput );
@@ -62,7 +63,9 @@ public class KeyboardPlayerController : MonoBehaviour, ICustomPlayerController
         float verticalInput = Input.GetAxisRaw( verticalAxisName );
         bool pressingJump = (verticalInput > 0.0f);
 
-        if( !pressingJump )
+        bool pressuingUseAbility = Input.GetButton(abilityName);
+
+        if ( !pressingJump )
         {
             hasReleasedJumpSinceLastJump = true;
             playerController.MoveVertical( 0f );
@@ -85,5 +88,7 @@ public class KeyboardPlayerController : MonoBehaviour, ICustomPlayerController
         {
             playerController.MoveVertical( 0f );
         }
+
+        playerController.SetUsingAbility(pressuingUseAbility);
     }
 }

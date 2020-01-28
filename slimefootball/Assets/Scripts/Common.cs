@@ -13,6 +13,26 @@ public class Common : MonoBehaviour
         Random
     }
 
+    public enum Ability
+    {
+        normal,
+        ball_reverse,
+        turbo_running,
+
+        count
+    }
+
+    public static string ToString(Ability a)
+    {
+        switch(a)
+        {
+            case Ability.normal: return "normal";
+            case Ability.ball_reverse: return "ball reverse";
+            case Ability.turbo_running: return "turbo running";
+            default: return "";
+        }
+    }
+
     public static string ToString(AiImplementations type)
     {
         switch(type)

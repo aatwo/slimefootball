@@ -35,7 +35,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] Text gamesWonText_TeamOne;
     [SerializeField] Text gamesWonText_TeamTwo;
 
-    static public int gameWidth = 24;
+    static public int gameWidth = 50;
     static public int gameHeight = 14;
 
     public int maxScore = 3;
@@ -471,6 +471,7 @@ public class GameManager : MonoBehaviour
             Debug.LogError( "No player controller script found on player (SpawnPlayer)" );
 
         playerController.SetPlayerSpriteIndex( playerSpriteIndex );
+        playerController.OnSetUsingAbilityEvent += HandlePlayerUsingAbilityEvent;
 
         Player player = new Player();
         player.customControllers = new List<ICustomPlayerController>();
@@ -645,6 +646,41 @@ public class GameManager : MonoBehaviour
                 Debug.LogError("Unknown player scored");
 
             HandleTeamScore( teamIndex );
+        }
+    }
+
+    void HandlePlayerUsingAbilityEvent(PlayerController playerController, Common.Ability ability, bool activated)
+    {
+        if (!activated)
+            return;
+
+        // We handle any abilities that cannot be handled by the players themselves
+        switch (ability)
+        {
+            case Common.Ability.ball_reverse:
+            {
+                // handled by game manager
+                if (ball != null)
+                {
+                    Rigidbody2D rb = ball.GetComponent<Rigidbody2D>();
+                    if(rb != null)
+                    {
+                        rb.velocity = new Vector2(-rb.velocity.x, rb.velocity.y);
+                    }
+                }
+                break;
+            }
+
+            case Common.Ability.turbo_running:
+            {
+                // handled by player
+                break;
+            }
+
+            default:
+            {
+                break;
+            }
         }
     }
 
