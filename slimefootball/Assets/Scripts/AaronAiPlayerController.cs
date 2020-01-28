@@ -106,7 +106,10 @@ public class AaronAiPlayerController : MonoBehaviour, ICustomPlayerController
 
     Vector3 GetAveragePos(List<Transform> transforms)
     {
-        int count = 1;
+        if (transforms.Count == 0)
+            return new Vector3(0f, 0f, 0f);
+
+        int count = 0;
         float averageX = 0f;
         float averageY = 0f;
         foreach(Transform t in transforms)
@@ -161,6 +164,9 @@ public class AaronAiPlayerController : MonoBehaviour, ICustomPlayerController
         }
     }
 
+    float currentHorizontalMovement = 0f;
+    float currentHorizontalMovementTarget = 0f;
+    float speedChangePerSecond = 4f;
     void PerformAttackingAi()
     {
         float playerX = playerController.transform.position.x;
@@ -176,38 +182,53 @@ public class AaronAiPlayerController : MonoBehaviour, ICustomPlayerController
         {
             if (direction == Common.Direction.left)
             {
-                if (distanceToBall < 1f)
+                if (distanceToBall < 0.8f)
                 {
-                    playerController.MoveHorizontal(1f);
+                    currentHorizontalMovementTarget = 1f;
                 }
                 else
                 {
-                    playerController.MoveHorizontal(-1f);
+                    currentHorizontalMovementTarget = -1f;
                 }
             }
             else
             {
-                playerController.MoveHorizontal(-1f);
+                currentHorizontalMovementTarget = -1f;
             }
         }
         else if (playerX < ballX)
         {
             if (direction == Common.Direction.right)
             {
-                if (distanceToBall < 1f)
+                if (distanceToBall < 0.8f)
                 {
-                    playerController.MoveHorizontal(-1f);
+                    currentHorizontalMovementTarget = -1f;
                 }
                 else
                 {
-                    playerController.MoveHorizontal(1f);
+                    currentHorizontalMovementTarget = 1f;
                 }
             }
             else
             {
-                playerController.MoveHorizontal(1f);
+                currentHorizontalMovementTarget = 1f;
             }
         }
+
+        if(currentHorizontalMovementTarget < currentHorizontalMovement)
+        {
+            currentHorizontalMovement -= Time.deltaTime * speedChangePerSecond;
+            if (currentHorizontalMovement < currentHorizontalMovementTarget)
+                currentHorizontalMovement = currentHorizontalMovementTarget;
+        }
+        else if(currentHorizontalMovementTarget > currentHorizontalMovement)
+        {
+            currentHorizontalMovement += Time.deltaTime * speedChangePerSecond;
+            if (currentHorizontalMovement > currentHorizontalMovementTarget)
+                currentHorizontalMovement = currentHorizontalMovementTarget;
+        }
+
+        playerController.MoveHorizontal(currentHorizontalMovement);
 
         // If the ball is within a specific vertical window then jump
         float jumpXRange = 2f;
